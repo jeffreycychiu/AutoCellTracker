@@ -6,16 +6,17 @@
         xmlns:local="clr-namespace:AutoCellTracker"
         mc:Ignorable="d"
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
-        Title="AutoCellTracker" Height="350" Width="525">
+        Title="AutoCellTracker" Height="500" Width="800">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="4*"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
 
-        <Button x:Name="selectFolder" Width="50" Height="50" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Click="selectFolder_Click" Style="{DynamicResource MetroCircleButtonStyle}">
-            <Rectangle Width="20"
-                Height="20"
+        <Button x:Name="selectFolder" Width="50" Height="50" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Click="selectFolder_Click" 
+                Style="{DynamicResource MetroCircleButtonStyle}">
+            <Rectangle Width="25"
+                Height="25"
                 Fill="{Binding Path=Foreground, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Button}}}">
                 <Rectangle.OpacityMask>
                     <VisualBrush Stretch="Fill" Visual="{StaticResource appbar_folder_open}"/>
@@ -23,10 +24,66 @@
             </Rectangle>
         </Button>
 
-        <Border BorderThickness="1" BorderBrush="#FF000000" Margin="10,65,10,10" Grid.RowSpan="2">
+        <TextBlock x:Name="folderTextBlock" HorizontalAlignment="Left" Margin="65,27,0,0" TextWrapping="Wrap" Text="Folder Path to Images" VerticalAlignment="Top"/>
+        <TextBlock x:Name="numImagesTextBlock" HorizontalAlignment="Right" Margin="0,27,10,0" TextWrapping="Wrap" Text="Image: 0/0" VerticalAlignment="Top"/>
 
-            <Image x:Name="image" HorizontalAlignment="Left" Stretch="Fill" VerticalAlignment="Top"/>
+        <Border BorderThickness="1" BorderBrush="#FF000000" Margin="10,65,10,50" Grid.RowSpan="2">
+
+            <Image x:Name="imageDisplay" HorizontalAlignment="Left" Stretch="Fill" VerticalAlignment="Top"/>
 
         </Border>
+
+        <Button x:Name="btnPrev" HorizontalAlignment="Left" Margin="10,44,0,0" Grid.Row="1" VerticalAlignment="Top" Width="50" Height="50"
+                Click="btnPrev_Click" Style="{DynamicResource MetroCircleButtonStyle}">
+            <Rectangle Width="25"
+                Height="25"
+                Fill="{Binding Path=Foreground, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Button}}}">
+                <Rectangle.OpacityMask>
+                    <VisualBrush Stretch="Fill" Visual="{StaticResource appbar_navigate_previous}"/>
+                </Rectangle.OpacityMask>
+            </Rectangle>
+        </Button>
+
+        <Button x:Name="btnNext" HorizontalAlignment="Left" Margin="60,44,0,0" Grid.Row="1" VerticalAlignment="Top" Width="50" Height="50"
+                Click="btnNext_Click" Style="{DynamicResource MetroCircleButtonStyle}">
+            <Rectangle Width="25"
+                Height="25"
+                Fill="{Binding Path=Foreground, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Button}}}">
+                <Rectangle.OpacityMask>
+                    <VisualBrush Stretch="Fill" Visual="{StaticResource appbar_navigate_next}"/>
+                </Rectangle.OpacityMask>
+            </Rectangle>
+        </Button>
+        
     </Grid>
+
+    <Controls:MetroWindow.RightWindowCommands>
+        <Controls:WindowCommands>
+            <Button Name="btnFlyoutSettings" Click="btnFlyoutSettings_Click">
+                <StackPanel Orientation="Horizontal">
+                    <Rectangle Width="20"
+                   Height="20"
+                   Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}">
+                        <Rectangle.OpacityMask>
+                            <VisualBrush Stretch="Fill" Visual="{StaticResource appbar_settings}" />
+                        </Rectangle.OpacityMask>
+                    </Rectangle>
+                    <TextBlock Margin="4 0 0 0"
+                   VerticalAlignment="Center"/>
+                </StackPanel>
+            </Button>
+        </Controls:WindowCommands>
+    </Controls:MetroWindow.RightWindowCommands>
+
+    <Controls:MetroWindow.Flyouts>
+        <Controls:FlyoutsControl>
+            <Controls:Flyout Name="flyoutSettings"  Header="Settings" Position="Right" Width="300">
+                <!-- Your custom content here -->
+            </Controls:Flyout>
+
+
+        </Controls:FlyoutsControl>
+    </Controls:MetroWindow.Flyouts>
+
+
 </Controls:MetroWindow>
