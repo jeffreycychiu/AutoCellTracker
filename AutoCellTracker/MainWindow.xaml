@@ -6,6 +6,8 @@
         xmlns:local="clr-namespace:AutoCellTracker"
         mc:Ignorable="d"
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        Icon="Icon.bmp"
+        ShowIconOnTitleBar="False"
         Title="AutoCellTracker" Height="500" Width="800">
     <Grid>
         <Grid.RowDefinitions>
@@ -33,8 +35,8 @@
 
         </Border>
 
-        <Button x:Name="btnPrev" HorizontalAlignment="Left" Margin="10,44,0,0" Grid.Row="1" VerticalAlignment="Top" Width="50" Height="50"
-                Click="btnPrev_Click" Style="{DynamicResource MetroCircleButtonStyle}">
+        <Button x:Name="btnPrev" HorizontalAlignment="Left" Margin="10,44,0,0" Grid.Row="1" VerticalAlignment="Bottom" Width="50" Height="50"
+                IsEnabled="False" Click="btnPrev_Click" Style="{DynamicResource MetroCircleButtonStyle}">
             <Rectangle Width="25"
                 Height="25"
                 Fill="{Binding Path=Foreground, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Button}}}">
@@ -44,8 +46,8 @@
             </Rectangle>
         </Button>
 
-        <Button x:Name="btnNext" HorizontalAlignment="Left" Margin="60,44,0,0" Grid.Row="1" VerticalAlignment="Top" Width="50" Height="50"
-                Click="btnNext_Click" Style="{DynamicResource MetroCircleButtonStyle}">
+        <Button x:Name="btnNext" HorizontalAlignment="Left" Margin="60,44,0,0" Grid.Row="1" VerticalAlignment="Bottom" Width="50" Height="50"
+                IsEnabled="False" Click="btnNext_Click" Style="{DynamicResource MetroCircleButtonStyle}">
             <Rectangle Width="25"
                 Height="25"
                 Fill="{Binding Path=Foreground, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Button}}}">

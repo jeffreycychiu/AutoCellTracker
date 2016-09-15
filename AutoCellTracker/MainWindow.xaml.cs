@@ -27,7 +27,6 @@ namespace AutoCellTracker
         int numImages = 0;
         int currentImage = 0;
         List<String> imageFilePath = new List<string>();
-        
 
         public MainWindow()
         {
@@ -54,12 +53,19 @@ namespace AutoCellTracker
             numImages = 0;
             currentImage = 0;
 
+            //TODO: Add support for other image formats
             foreach (var imageFile in directoryInfo.GetFiles("*.bmp"))
             {
                 imageFilePath.Add(imageFile.FullName);
                 numImages++;
             }
-            updateImage();
+
+            if(numImages > 0)
+            {
+                updateImage();
+                btnNext.IsEnabled = true;
+                btnPrev.IsEnabled = true;
+            }
 
         }
 
@@ -84,7 +90,7 @@ namespace AutoCellTracker
             if (currentImage < 0)
                 currentImage = numImages - 1;
             updateImage();
-        }
+        } 
 
         private void btnNext_Click(object sender, RoutedEventArgs e)
         {
