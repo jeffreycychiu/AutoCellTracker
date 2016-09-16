@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ using System.IO;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -16,6 +18,10 @@ using System.Windows.Shapes;
 using MahApps.Metro.Controls;
 using Microsoft.Win32;
 using Ookii.Dialogs.Wpf;
+using Emgu.CV;
+using Emgu.Util;
+using Emgu.CV.Structure;
+
 
 namespace AutoCellTracker
 {
@@ -43,7 +49,7 @@ namespace AutoCellTracker
             dialog.Description = "Navigate to folder containing images";
             dialog.UseDescriptionForTitle = true; // This applies to the Vista style dialog only, not the old dialog.
             if (!VistaFolderBrowserDialog.IsVistaFolderDialogSupported)
-                MessageBox.Show(this, "Because you are not using Windows Vista or later, the regular folder browser dialog will be used. Please use Windows Vista to see the new dialog.", "Sample folder browser dialog");
+                System.Windows.MessageBox.Show(this, "Because you are not using Windows Vista or later, the regular folder browser dialog will be used. Please use Windows Vista to see the new dialog.", "Sample folder browser dialog");
             if ((bool)dialog.ShowDialog(this))
                 folderTextBlock.Text = dialog.SelectedPath;
 
@@ -71,8 +77,9 @@ namespace AutoCellTracker
 
         public void updateImage()
         {
-            ImageSource imageSource = new BitmapImage(new Uri(imageFilePath[currentImage]));
-            imageDisplay.Source = imageSource;
+            //create new images using the EmguCV
+            Image<Bgr, Byte> image = new Image<Bgr, Byte>((imageFilePath[currentImage]));
+            imageDisplay.Image = image;
             numImagesTextBlock.Text = "Image: " + (currentImage + 1) + "/" + numImages.ToString();
         }
 
@@ -105,6 +112,15 @@ namespace AutoCellTracker
         private void btnFlyoutSettings_Click(object sender, RoutedEventArgs e)
         {
             flyoutSettings.IsOpen = true;
+        }
+
+        //Rectangular crop all the images in the series. Uses a user selected box (mouse) or entered coordinates (x1,y1 to x2,y2)
+        private void btnCrop_Click(object sender, RoutedEventArgs e)
+        {
+            //close flyout for ease of selecting the area
+            flyoutSettings.IsOpen = false;
+
+
         }
     }
 }

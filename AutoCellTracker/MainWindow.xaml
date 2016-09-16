@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AutoCellTracker"
+        xmlns:emui="clr-namespace:Emgu.CV.UI;assembly=Emgu.CV.UI"
         mc:Ignorable="d"
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         Icon="Icon.bmp"
@@ -30,9 +31,9 @@
         <TextBlock x:Name="numImagesTextBlock" HorizontalAlignment="Right" Margin="0,27,10,0" TextWrapping="Wrap" Text="Image: 0/0" VerticalAlignment="Top"/>
 
         <Border BorderThickness="1" BorderBrush="#FF000000" Margin="10,65,10,50" Grid.RowSpan="2">
-
-            <Image x:Name="imageDisplay" HorizontalAlignment="Left" Stretch="Fill" VerticalAlignment="Top"/>
-
+            <WindowsFormsHost>
+                <emui:ImageBox x:Name="imageDisplay"/>
+            </WindowsFormsHost>
         </Border>
 
         <Button x:Name="btnPrev" HorizontalAlignment="Left" Margin="10,44,0,0" Grid.Row="1" VerticalAlignment="Bottom" Width="50" Height="50"
@@ -81,6 +82,18 @@
         <Controls:FlyoutsControl>
             <Controls:Flyout Name="flyoutSettings"  Header="Settings" Position="Right" Width="300">
                 <!-- Your custom content here -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*" />
+                        <ColumnDefinition Width="1*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*" />
+                    </Grid.RowDefinitions>
+
+                    <Button Name="btnCrop" Click="btnCrop_Click">Crop</Button>
+                </Grid>
             </Controls:Flyout>
 
 
