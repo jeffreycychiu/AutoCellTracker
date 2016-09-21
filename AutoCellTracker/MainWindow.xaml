@@ -82,6 +82,7 @@
         <Controls:FlyoutsControl>
             <Controls:Flyout Name="flyoutSettings"  Header="Settings" Position="Right" Width="300">
                 <!-- Your custom content here -->
+             
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="1*" />

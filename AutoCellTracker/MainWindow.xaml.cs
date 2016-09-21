@@ -77,7 +77,7 @@ namespace AutoCellTracker
 
         public void updateImage()
         {
-            //create new images using the EmguCV
+            //create new images using the EmguCV / openCV
             Image<Bgr, Byte> image = new Image<Bgr, Byte>((imageFilePath[currentImage]));
             imageDisplay.Image = image;
             numImagesTextBlock.Text = "Image: " + (currentImage + 1) + "/" + numImages.ToString();
