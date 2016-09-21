@@ -81,6 +81,22 @@
         <Controls:FlyoutsControl>
             <Controls:Flyout Name="flyoutSettings"  Header="Settings" Position="Right" Width="300">
                 <!-- Your custom content here -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*" />
+                        <ColumnDefinition Width="1*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*" />
+                    </Grid.RowDefinitions>
+
+                    <Button Name="btnCrop" Click="btnCrop_Click">Crop</Button>
+
+                </Grid>
+                
             </Controls:Flyout>
 
 

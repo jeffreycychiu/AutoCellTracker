@@ -31,6 +31,7 @@ namespace AutoCellTracker
         int numImages = 0;
         int currentImage = 0;
         List<String> imageFilePath = new List<string>();
+        List<Emgu.CV.IImage> imageList = new List<Emgu.CV.IImage>();
 
         public MainWindow()
         {
@@ -64,7 +65,14 @@ namespace AutoCellTracker
                 numImages++;
             }
 
-            if(numImages > 0)
+            //Load images - create a list of EmguCV IImages
+            for (int i = 0; i < numImages; i++)
+            {
+                Image<Bgr, Byte> image = new Image<Bgr, Byte>((imageFilePath[i]));
+                imageList.Add(image);
+            }
+
+            if (numImages > 0)
             {
                 updateImage();
                 btnNext.IsEnabled = true;
@@ -75,16 +83,8 @@ namespace AutoCellTracker
 
         public void updateImage()
         {
-            /*
-            ImageSource imageSource = new BitmapImage(new Uri(imageFilePath[currentImage]));
-            imageDisplay.Source = imageSource;
-            numImagesTextBlock.Text = "Image: " + (currentImage + 1) + "/" + numImages.ToString();
-            */
-
-            Image<Bgr, Byte> image = new Image<Bgr, Byte>((imageFilePath[currentImage]));
-
-            BitmapSource imageBitmapSoruce = ToBitmapSource(image);
-
+            //May have memory leak here - need to fix
+            BitmapSource imageBitmapSoruce = ToBitmapSource(imageList[currentImage]);
             imageDisplay.Source = imageBitmapSoruce;
             numImagesTextBlock.Text = "Image: " + (currentImage + 1) + "/" + numImages.ToString();
         }
@@ -120,6 +120,11 @@ namespace AutoCellTracker
             flyoutSettings.IsOpen = true;
         }
 
+        private void btnCrop_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
         /// <summary>
         /// Delete a GDI object
         /// </summary>
@@ -149,5 +154,7 @@ namespace AutoCellTracker
                 return bs;
             }
         }
+
+
     }
 }
