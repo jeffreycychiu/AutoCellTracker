@@ -24,14 +24,15 @@ using Emgu.CV.Structure;
 namespace AutoCellTracker
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Interaction logic for MainWindow.xaml 
     /// </summary>
     public partial class MainWindow : MetroWindow
     {
         int numImages = 0;
         int currentImage = 0;
         List<String> imageFilePath = new List<string>();
-        List<Emgu.CV.IImage> imageList = new List<Emgu.CV.IImage>();
+        //List<Emgu.CV.IImage> imageList = new List<Emgu.CV.IImage>();
+        List<Emgu.CV.Image<Bgr,Byte>> imageList = new List<Emgu.CV.Image<Bgr, Byte>>();
 
         public MainWindow()
         {
@@ -122,6 +123,7 @@ namespace AutoCellTracker
 
         private void btnCrop_Click(object sender, RoutedEventArgs e)
         {
+
 
         }
 
