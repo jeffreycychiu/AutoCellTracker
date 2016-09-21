@@ -18,6 +18,8 @@ using MahApps.Metro.Controls;
 using Microsoft.Win32;
 using Ookii.Dialogs.Wpf;
 using Emgu.CV;
+using Emgu.Util;
+using Emgu.CV.Structure;
 
 namespace AutoCellTracker
 {
@@ -73,8 +75,17 @@ namespace AutoCellTracker
 
         public void updateImage()
         {
+            /*
             ImageSource imageSource = new BitmapImage(new Uri(imageFilePath[currentImage]));
             imageDisplay.Source = imageSource;
+            numImagesTextBlock.Text = "Image: " + (currentImage + 1) + "/" + numImages.ToString();
+            */
+
+            Image<Bgr, Byte> image = new Image<Bgr, Byte>((imageFilePath[currentImage]));
+
+            BitmapSource imageBitmapSoruce = ToBitmapSource(image);
+
+            imageDisplay.Source = imageBitmapSoruce;
             numImagesTextBlock.Text = "Image: " + (currentImage + 1) + "/" + numImages.ToString();
         }
 
