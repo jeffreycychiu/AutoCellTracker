@@ -121,9 +121,32 @@ namespace AutoCellTracker
             flyoutSettings.IsOpen = true;
         }
 
+        //Crops all of the pictures in the folders. Creates a new list of cropped Images
         private void btnCrop_Click(object sender, RoutedEventArgs e)
         {
+            //Popup message box of the coordinates to crop. Given in x1,y1,x2,y2. Will draw a rectangle from top left (x1,y1) to bottom right(x2,y2)
+            flyoutSettings.IsOpen = false;
+            //open crop window
+            cropWindow cropWindow = new cropWindow();
+            cropWindow.Show();
 
+            //Enable the red rectangle that shows the cropping box. Get the cropping box size from the new Crop Window
+            rectCrop.Opacity = 100;
+
+            //rectCrop.Height = (double.Parse(cropWindow.textX1.Text))/100;
+            rectCrop.Height = 200;
+
+
+            /*
+            imageList[currentImage].ROI = new System.Drawing.Rectangle(0, 0, 500, 500);
+            Image<Bgr,Byte> croppedImage = new Image<Bgr,Byte>(500,500);
+            croppedImage = imageList[currentImage].Copy();
+            imageDisplay.Source = ToBitmapSource(croppedImage);
+            */
+        }
+
+        private void btnSave_Click(object sender, RoutedEventArgs e)
+        {
 
         }
 

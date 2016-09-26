@@ -29,6 +29,8 @@
         <TextBlock x:Name="folderTextBlock" HorizontalAlignment="Left" Margin="65,27,0,0" TextWrapping="Wrap" Text="Folder Path to Images" VerticalAlignment="Top"/>
         <TextBlock x:Name="numImagesTextBlock" HorizontalAlignment="Right" Margin="0,27,10,0" TextWrapping="Wrap" Text="Image: 0/0" VerticalAlignment="Top"/>
 
+        
+        
         <Border BorderThickness="1" BorderBrush="#FF000000" Margin="10,65,10,50" Grid.RowSpan="2">
 
             <Image x:Name="imageDisplay" HorizontalAlignment="Left" Stretch="Fill" VerticalAlignment="Top"/>
@@ -57,6 +59,9 @@
             </Rectangle>
         </Button>
         
+        <!--Rectangle for drawing the crop overlay-->
+        <Rectangle Name="rectCrop" Stroke="Red" Opacity="0" HorizontalAlignment="Left" Height="100" Width="100" Margin="10,65,0,0" VerticalAlignment="Top"/>
+
     </Grid>
 
     <Controls:MetroWindow.RightWindowCommands>
@@ -93,7 +98,8 @@
                         <RowDefinition Height="1*" />
                     </Grid.RowDefinitions>
 
-                    <Button Name="btnCrop" Click="btnCrop_Click">Crop</Button>
+                    <Button Name="btnCrop" Grid.Row="0" Grid.Column="0" Click="btnCrop_Click">Crop</Button>
+                    <Button Name="btnSave" Grid.Row="0" Grid.Column="1" Click="btnSave_Click">Save Images</Button>
 
                 </Grid>
                 
