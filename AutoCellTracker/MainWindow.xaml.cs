@@ -131,10 +131,18 @@ namespace AutoCellTracker
             cropWindow.Show();
 
             //Enable the red rectangle that shows the cropping box. Get the cropping box size from the new Crop Window
+            //Need to scale the crop size to the size of the window/image 
             rectCrop.Opacity = 100;
 
-            //rectCrop.Height = (double.Parse(cropWindow.textX1.Text))/100;
-            rectCrop.Height = 200;
+            rectCrop.Width = double.Parse(cropWindow.textX2.Text);
+            rectCrop.Height = double.Parse(cropWindow.textY2.Text);
+
+            Console.WriteLine(borderImage.Width);
+            Console.WriteLine(borderImage.Height);
+            Console.WriteLine(rectCrop.Width);
+            Console.WriteLine(rectCrop.Height);
+            
+            //rectCrop.Height = 200;
 
 
             /*
