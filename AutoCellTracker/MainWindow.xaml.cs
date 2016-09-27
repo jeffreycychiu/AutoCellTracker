@@ -53,17 +53,24 @@ namespace AutoCellTracker
             if ((bool)dialog.ShowDialog(this))
                 folderTextBlock.Text = dialog.SelectedPath;
 
-            DirectoryInfo directoryInfo = new DirectoryInfo(dialog.SelectedPath);
-
-            //Searches folder for bitmap (.bmp) files. Loads an array with file names, and counts the total number of bmp files
-            numImages = 0;
-            currentImage = 0;
-
-            //TODO: Add support for other image formats
-            foreach (var imageFile in directoryInfo.GetFiles("*.bmp"))
+            try
             {
-                imageFilePath.Add(imageFile.FullName);
-                numImages++;
+                DirectoryInfo directoryInfo = new DirectoryInfo(dialog.SelectedPath);
+
+                //Searches folder for bitmap (.bmp) files. Loads an array with file names, and counts the total number of bmp files
+                numImages = 0;
+                currentImage = 0;
+
+                //TODO: Add support for other image formats
+                foreach (var imageFile in directoryInfo.GetFiles("*.bmp"))
+                {
+                    imageFilePath.Add(imageFile.FullName);
+                    numImages++;
+                }
+            }
+            catch (ArgumentException)
+            {
+                MessageBox.Show("Error: Folder not selected");
             }
 
             //Load images - create a list of EmguCV IImages
