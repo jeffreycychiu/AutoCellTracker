@@ -141,11 +141,18 @@ namespace AutoCellTracker
             //Need to scale the crop size to the size of the window/image 
             rectCrop.Opacity = 100;
 
-            rectCrop.Width = double.Parse(cropWindow.textX2.Text);
-            rectCrop.Height = double.Parse(cropWindow.textY2.Text);
+            double userCropWidth = double.Parse(cropWindow.textX2.Text) - double.Parse(cropWindow.textX1.Text);
+            double userCropHeight = double.Parse(cropWindow.textY2.Text) - double.Parse(cropWindow.textY1.Text);
 
-            Console.WriteLine(borderImage.Width);
-            Console.WriteLine(borderImage.Height);
+            rectCrop.Width = (userCropWidth / imageList[currentImage].Width * imageDisplay.ActualWidth);
+            rectCrop.Height = (userCropHeight / imageList[currentImage].Height * imageDisplay.ActualHeight);
+
+            Console.WriteLine("UserCropWidth: " + userCropWidth);
+            Console.WriteLine("UserCropHeight: " + userCropHeight);
+            Console.WriteLine("imageList Width: " + imageList[currentImage].Width);
+            Console.WriteLine("imageList Height: " + imageList[currentImage].Height);
+            Console.WriteLine("imageDispalay Width: " + imageDisplay.ActualWidth);
+            Console.WriteLine("imageDispalay Height: " + imageDisplay.ActualHeight);
             Console.WriteLine(rectCrop.Width);
             Console.WriteLine(rectCrop.Height);
             
