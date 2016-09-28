@@ -158,7 +158,6 @@ namespace AutoCellTracker
             
             //rectCrop.Height = 200;
 
-
             /*
             imageList[currentImage].ROI = new System.Drawing.Rectangle(0, 0, 500, 500);
             Image<Bgr,Byte> croppedImage = new Image<Bgr,Byte>(500,500);

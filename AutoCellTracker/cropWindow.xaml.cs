@@ -23,5 +23,15 @@ namespace AutoCellTracker
         {
             InitializeComponent();
         }
+
+        private void btnView_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void btnCrop_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }
