@@ -11,6 +11,9 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using Emgu.CV;
+using Emgu.Util;
+using Emgu.CV.Structure;
 
 namespace AutoCellTracker
 {
@@ -25,7 +28,7 @@ namespace AutoCellTracker
             InitializeComponent();
         }
 
-        //Show what will be cropped in a red rectangle in the main window
+        //Show what will be cropped in a red rectangle in the main window. TODO: Edit for case where X1,Y1 != 0
         private void btnView_Click(object sender, RoutedEventArgs e)
         {
             MainWindow mainWindow = Application.Current.MainWindow as MainWindow;
@@ -59,9 +62,13 @@ namespace AutoCellTracker
             for (int i = 0; i < mainWindow.numImages; i++)
             {
                 mainWindow.imageList[i].ROI = new System.Drawing.Rectangle(X1, Y1, X2, Y2);
+                Image<Bgr, byte> croppedImage = new Image<Bgr, Byte>(X2 - X1, Y2 - Y1);
+                croppedImage = mainWindow.imageList[i].Copy();
+                mainWindow.imageList[i] = croppedImage;
             }
 
-
+            mainWindow.updateImage();
+            mainWindow.rectCrop.Opacity = 0;
         }
     }
 }
