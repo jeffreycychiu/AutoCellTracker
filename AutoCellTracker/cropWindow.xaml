@@ -21,8 +21,8 @@
         <TextBlock x:Name="textBlockY2" HorizontalAlignment="Left" Margin="182,223,0,0" TextWrapping="Wrap" Text="Y2:" VerticalAlignment="Top"/>
         <Ellipse Fill="Red" HorizontalAlignment="Left" Height="7" Margin="108,122,0,0" Stroke="Black" VerticalAlignment="Top" Width="7"/>
         <Ellipse Fill="Red" HorizontalAlignment="Left" Height="7" Margin="174,183,0,0" Stroke="Black" VerticalAlignment="Top" Width="7"/>
+        
         <Button x:Name="btnView" Content="View" Click="btnView_Click"  HorizontalAlignment="Center" Margin="108,255,109,0" VerticalAlignment="Top" Width="75"/>
         <Button x:Name="btnCrop" Content="Crop" Click="btnCrop_Click" HorizontalAlignment="Center" Margin="108,285,109,0" VerticalAlignment="Top" Width="75"/>
- 
     </Grid>
 </Window>

@@ -28,11 +28,11 @@ namespace AutoCellTracker
     /// </summary>
     public partial class MainWindow : MetroWindow
     {
-        int numImages = 0;
-        int currentImage = 0;
+        public int numImages = 0;
+        public int currentImage = 0;
         List<String> imageFilePath = new List<string>();
         //List<Emgu.CV.IImage> imageList = new List<Emgu.CV.IImage>();
-        List<Emgu.CV.Image<Bgr,Byte>> imageList = new List<Emgu.CV.Image<Bgr, Byte>>();
+        public List<Emgu.CV.Image<Bgr,Byte>> imageList = new List<Emgu.CV.Image<Bgr, Byte>>();
 
         public MainWindow()
         {
@@ -138,32 +138,7 @@ namespace AutoCellTracker
             cropWindow.Show();
 
             //Enable the red rectangle that shows the cropping box. Get the cropping box size from the new Crop Window
-            //Need to scale the crop size to the size of the window/image 
-            rectCrop.Opacity = 100;
-
-            double userCropWidth = double.Parse(cropWindow.textX2.Text) - double.Parse(cropWindow.textX1.Text);
-            double userCropHeight = double.Parse(cropWindow.textY2.Text) - double.Parse(cropWindow.textY1.Text);
-
-            rectCrop.Width = (userCropWidth / imageList[currentImage].Width * imageDisplay.ActualWidth);
-            rectCrop.Height = (userCropHeight / imageList[currentImage].Height * imageDisplay.ActualHeight);
-
-            Console.WriteLine("UserCropWidth: " + userCropWidth);
-            Console.WriteLine("UserCropHeight: " + userCropHeight);
-            Console.WriteLine("imageList Width: " + imageList[currentImage].Width);
-            Console.WriteLine("imageList Height: " + imageList[currentImage].Height);
-            Console.WriteLine("imageDispalay Width: " + imageDisplay.ActualWidth);
-            Console.WriteLine("imageDispalay Height: " + imageDisplay.ActualHeight);
-            Console.WriteLine(rectCrop.Width);
-            Console.WriteLine(rectCrop.Height);
             
-            //rectCrop.Height = 200;
-
-            /*
-            imageList[currentImage].ROI = new System.Drawing.Rectangle(0, 0, 500, 500);
-            Image<Bgr,Byte> croppedImage = new Image<Bgr,Byte>(500,500);
-            croppedImage = imageList[currentImage].Copy();
-            imageDisplay.Source = ToBitmapSource(croppedImage);
-            */
         }
 
         private void btnSave_Click(object sender, RoutedEventArgs e)

@@ -56,7 +56,7 @@
         </Button>
         
         <!--Rectangle for drawing the crop overlay-->
-        <Rectangle Name="rectCrop" Stroke="Red" StrokeThickness="3" Opacity="0" HorizontalAlignment="Left" Height="100" Width="100" Margin="10,65,0,0" VerticalAlignment="Top"/>
+        <Rectangle Name="rectCrop" Stroke="Red" StrokeThickness="3" Opacity="0" x:FieldModifier="public" HorizontalAlignment="Left" Height="100" Width="100" Margin="10,65,0,0" VerticalAlignment="Top"/>
 
     </Grid>
 
