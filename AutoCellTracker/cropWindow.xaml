@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:AutoCellTracker"
         mc:Ignorable="d"
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
-        Icon="Icon.bmp"
+        Icon="Icon.bmp" 
         Title="Crop" Height="350" Width="300">
     <Grid>
         <TextBlock x:Name="cropText" HorizontalAlignment="Center" Margin="0,30,0,0" TextWrapping="Wrap" Text="Input Cropping Rectangle" VerticalAlignment="Top"/>
