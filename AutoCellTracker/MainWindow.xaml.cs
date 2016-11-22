@@ -143,6 +143,25 @@ namespace AutoCellTracker
 
         private void btnSave_Click(object sender, RoutedEventArgs e)
         {
+            //TEMPORARY - using this button to test the matlab function integration
+            int a = 8;
+            int b = 3;
+            Console.WriteLine("original values: a = " + a.ToString() + " b = " + b.ToString());
+
+            // Create the MATLAB instance 
+            MLApp.MLApp matlab = new MLApp.MLApp();
+
+            // Change to the directory where the function is located 
+            matlab.Execute(@"cd 'C:\Users\MDL\Google Drive\Grad School Research\Matlab Prototype'");
+
+            object result = null;
+
+            matlab.Feval("testCSharpFunc", 2, out result, a, b);
+
+
+            object[] res = result as object[];
+
+            Console.WriteLine("new values: a = " + res[0] + " b = " + res[1]);
 
         }
 
