@@ -16,7 +16,7 @@ IMAGE_CROP_Y2 = 1039; %Bot right corner of cropping window
 
 %Get image folder name from C# program:
 %imageFolderPath = 'C:\Users\Jeff.JEFF-PC\Google Drive\Grad School Research\Matlab Prototype\Sample Images\1';
-imageFolderPath = 'C:\Users\MDL\Google Drive\Grad School Research\Matlab Prototype\Sample Images\1';
+imageFolderPath = 'C:\Users\MDL\Google Drive\Grad School Research\Matlab Prototype\Sample Images\Test Paint';
 imageList = dir(fullfile(imageFolderPath,'*bmp'));
 %Loop these calculations through each image in the file folder
 
@@ -27,6 +27,9 @@ finalImageCellArray = cell(size(imageList));
 finalCentroidCellArrayX = cell(size(imageList));
 finalCentroidCellArrayY = cell(size(imageList));
 
+croppedImages = cell(size(imageList));
+
+%% Cell detection
 for imageName = imageList'
     
     %addpath(genpath('Sample Images'))
@@ -39,6 +42,7 @@ for imageName = imageList'
     %imshow(image), title('original image')
  
     image = imcrop(image,[IMAGE_CROP_X1,IMAGE_CROP_Y1,IMAGE_CROP_X2,IMAGE_CROP_Y2]);
+    croppedImages{imageIndex} = image;
     %imshow(image), title('cropped image')
 
     %Edge detection. Use sobel operator to thrsehold the image, then sobel edge detection
@@ -159,18 +163,23 @@ for imageName = imageList'
     centroidListY = centroidList(2:2:end);
     
     finalImageCellArray{imageIndex} = roundKeptSegout;
-    finalCentroidCellArrayX{imageIndex} = centroidListX;
-    finalCentroidCellArrayY{imageIndex} = centroidListY;
+    finalCentroidCellArrayX{imageIndex} = centroidListX';
+    finalCentroidCellArrayY{imageIndex} = centroidListY';
     imageIndex = imageIndex + 1;
 end
 
+% pause
+% close all
+ 
+%set(0,'DefaultFigureWindowStyle','docked');
 
-% set(0,'DefaultFigureWindowStyle','docked');
-% for i=1:length(imageList)
-%     figure, imshow(finalImageCellArray{i});
-%     hold on
-%     plot(finalCentroidCellArrayX{i},finalCentroidCellArrayY{i},'.');
-% end
+for i=1:length(imageList)
+    figure, imshow(finalImageCellArray{i});
+    hold on
+    plot(finalCentroidCellArrayX{i},finalCentroidCellArrayY{i},'.');
+end
+%-----END OF CELL DETECTION. NEXT SECTION IS TRACKING-----%
+
 
 %% Do the tracking of cells. Using Kalman Filter + Hungarian assignment algorithm
 
@@ -180,9 +189,13 @@ dt = 1;         %time step. It should be constant so it doesn't matter, but the
 %Coefficent matrices for the physics of the system. Here both the state and measurement are
 %position. Use speed and acceleration for the model. 2Dimensions (X,Y)
 
+%define starting frame. Change this later to be user configurable.
+startFrame = 1;
+
 %initialize state and input as 0's
 posX = 0; posY = 0; velX = 0; velY = 0;
 accel = 0;
+
 %define noise magnitudes
 posNoiseMagX = 0.1;
 posNoiseMagY = 0.1;
@@ -210,7 +223,7 @@ C = [1 0 0 0; 0 1 0 0];
 %% initize result variables
 Q_loc_meas = []; % the fly detecions  extracted by the detection algo
 %% initize estimation variables for two dimensions
-Q = [finalCentroidCellArrayX{1}' finalCentroidCellArrayY{1}' zeros(length(finalCentroidCellArrayX{1}),1) zeros(length(finalCentroidCellArrayY{1}),1)]';
+Q = [finalCentroidCellArrayX{startFrame} finalCentroidCellArrayY{startFrame} zeros(length(finalCentroidCellArrayX{startFrame}),1) zeros(length(finalCentroidCellArrayY{startFrame}),1)]';
 Q_estimate = nan(4,2000);
 Q_estimate(:,1:size(Q,2)) = Q;  %estimate of initial location estimation of where the flies are(what we are updating)
 Q_loc_estimateY = nan(2000); %  position estimate
@@ -223,17 +236,17 @@ nF =  find(isnan(Q_estimate(1,:))==1,1)-1 ; %initize number of track estimates
 %% TODO: ADAPT EVERYTHING UNDER THIS LINE
 
 %for each frame
-for t = S_frame:length(f_list)-1 
+for t = startFrame:length(imageList)
     
     % load the image
-    img_tmp = double(imread(f_list(t).name));
+    img_tmp = croppedImages{t};
     img = img_tmp(:,:,1);
     % make the given detections matrix
-    Q_loc_meas = [X{t} Y{t}];
+    Q_loc_meas = [finalCentroidCellArrayX{t} finalCentroidCellArrayY{t}];
     
     %% do the kalman filter
     % Predict next state of the flies with the last state and predicted motion.
-    nD = size(X{t},1); %set new number of detections
+    nD = size(finalCentroidCellArrayX{t},1); %set new number of detections
     for F = 1:nF
         Q_estimate(:,F) = A * Q_estimate(:,F) + B * u;
     end
@@ -312,10 +325,10 @@ for t = S_frame:length(f_list)-1
     
     %%{
     clf
-    img = imread(f_list(t).name);
+    img = croppedImages{t};
     imshow(img);
     hold on;
-    plot(Y{t}(:),X{t}(:),'or'); % the actual tracking
+    plot(finalCentroidCellArrayY{t}(:),finalCentroidCellArrayX{t}(:),'or'); % the actual tracking
     T = size(Q_loc_estimateX,2);
     Ms = [3 5]; %marker sizes
     c_list = ['r' 'b' 'g' 'c' 'm' 'y']
@@ -334,7 +347,7 @@ for t = S_frame:length(f_list)-1
             axis off
         end
     end
-    %pause(1)
+    pause(1)
     %}
     
     t
