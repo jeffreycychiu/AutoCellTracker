@@ -6,17 +6,22 @@ close all
 clc
 
 %DEFINED THRESHOLDS AND VALUES - These should be taken from the C# UI
-ROUNDLIMIT = 0.5;       %Threshold for roundness measurement. 1= perfectly round.
-CELL_FUDGE_UPPER_BOUND = 1; %Percentage of cell size allowed larger than median size (+/- % of median size)
+ROUND_LIMIT = 0.35;       %Threshold for roundness measurement. 1= perfectly round.
+CELL_FUDGE_UPPER_BOUND = 5; %Percentage of cell size allowed larger than median size (+/- % of median size)
 CELL_FUDGE_LOWER_BOUND = 0.5; %Percentage of cell size allowed smaller than median size (+/- % of median size)
+CELL_AREA_MINIMUM = 500;
 IMAGE_CROP_X1 = 0; %Top left corner of cropping window
 IMAGE_CROP_Y1 = 0; %Top left corner of cropping window
 IMAGE_CROP_X2 = 1391; %Bot right corner of cropping window
-IMAGE_CROP_Y2 = 1039; %Bot right corner of cropping window
+IMAGE_CROP_Y2 = 1039; %Bot right c orner of cropping window
 
 %Get image folder name from C# program:
 %imageFolderPath = 'C:\Users\Jeff.JEFF-PC\Google Drive\Grad School Research\Matlab Prototype\Sample Images\1';
-imageFolderPath = 'C:\Users\MDL\Google Drive\Grad School Research\Matlab Prototype\Sample Images\Test Paint';
+%imageFolderPath = 'C:\Users\MDL\Google Drive\Grad School Research\Matlab Prototype\Sample Images\Test Paint';
+%imageFolderPath = 'C:\Users\MDL\Google Drive\Grad School Research\Matlab Prototype\Sample Images\1';
+imageFolderPath = 'C:\Users\MDL\Google Drive\Grad School Research\Matlab Prototype\Sample Images\lncap for cell tracking software';
+%imageFolderPath = 'C:\Users\Jeff.JEFF-PC\Google Drive\Grad School Research\Matlab Prototype\Sample Images\lncap for cell tracking software';
+
 imageList = dir(fullfile(imageFolderPath,'*bmp'));
 %Loop these calculations through each image in the file folder
 
@@ -44,6 +49,10 @@ for imageName = imageList'
     image = imcrop(image,[IMAGE_CROP_X1,IMAGE_CROP_Y1,IMAGE_CROP_X2,IMAGE_CROP_Y2]);
     croppedImages{imageIndex} = image;
     %imshow(image), title('cropped image')
+    
+    %Background removal
+    background = imopen(image,strel('disk',15));
+    image = image - background;
 
     %Edge detection. Use sobel operator to thrsehold the image, then sobel edge detection
     [~, threshold] = edge(image, 'sobel');
@@ -90,9 +99,8 @@ for imageName = imageList'
     %are clumped. Problems with this method could come up when the cells overlap in future images in the
     %series
 
-    %remove the entries with an area < cellAreaMinimum
-    cellAreaMinimum = 200;
-    BWsmallRemoved = bwareaopen(BWsegmented, cellAreaMinimum);
+    %remove the entries with an area < CELL_AREA_MINUMUM (defined in top)
+    BWsmallRemoved = bwareaopen(BWsegmented, CELL_AREA_MINIMUM);
     %figure, imshow(BWsmallRemoved), title('Small Cell Areas Removed');
 
     BWoutlineSmallRemoved = bwperim(BWsmallRemoved);
@@ -145,7 +153,7 @@ for imageName = imageList'
     allAreas = [measurements.Area];
     allPerimeters = [measurements.Perimeter];
     circularities = (4*pi*allAreas) ./ allPerimeters.^2;
-    keeperBlobs = circularities > ROUNDLIMIT;
+    keeperBlobs = circularities > ROUND_LIMIT;
     roundObjects = find(keeperBlobs);
     % Compute new binary image with only the small, round objects in it.
     BWroundKept = ismember(L, roundObjects) > 0;
@@ -170,43 +178,56 @@ end
 
 % pause
 % close all
- 
-%set(0,'DefaultFigureWindowStyle','docked');
-
-for i=1:length(imageList)
-    figure, imshow(finalImageCellArray{i});
-    hold on
-    plot(finalCentroidCellArrayX{i},finalCentroidCellArrayY{i},'.');
-end
+%  
+% set(0,'DefaultFigureWindowStyle','docked');
+% 
+% for i=1:length(imageList)
+%     figure, imshow(finalImageCellArray{i});
+%     hold on
+%     plot(finalCentroidCellArrayX{i},finalCentroidCellArrayY{i},'.');
+% end
 %-----END OF CELL DETECTION. NEXT SECTION IS TRACKING-----%
 
 
 %% Do the tracking of cells. Using Kalman Filter + Hungarian assignment algorithm
 
-dt = 1;         %time step. It should be constant so it doesn't matter, but the 
 
 %% Kalman Filter Update Equations
 %Coefficent matrices for the physics of the system. Here both the state and measurement are
 %position. Use speed and acceleration for the model. 2Dimensions (X,Y)
 
-%define starting frame. Change this later to be user configurable.
+%define starting frame. Change this later to be user configurable. 
 startFrame = 1;
+
+%time step. It should be constant so it doesn't matter, but the magnitude probably matters if we want speed in real units
+dt = 1;         
 
 %initialize state and input as 0's
 posX = 0; posY = 0; velX = 0; velY = 0;
-accel = 0;
+accel = 0; %perhaps this should have accelX and accelY?
 
-%define noise magnitudes
+%define noise magnitudes. What does this mean?
 posNoiseMagX = 0.1;
 posNoiseMagY = 0.1;
-accelNoiseMag = 1;
+accelNoiseMag = 0.1;
 
-%Convert process noise into covariance matrix
-Ez = [posNoiseMagX 0; 0 posNoiseMagY];
-Ex = [dt^4/4 0 dt^3/2 0; ...
-    0 dt^4/4 0 dt^3/2; ...
-    dt^3/2 0 dt^2 0; ...
-    0 dt^3/2 0 dt^2].*accelNoiseMag^2; % Ex convert the process noise (stdv) into covariance matrix
+%The position variance in x and y initialized, in terms of pixels.
+variancePosX = 25;
+variancePosY = variancePosX;
+varianceVelX = 200;
+varianceVelY = varianceVelX;
+
+
+%Convert process noise into covariance matrix Don't really understand this
+%Ez = [posNoiseMagX 0; 0 posNoiseMagY];      %Noise of position detection on image of X and Y are uncorrelated (0 covariance)
+Ez = [variancePosX 0; 0 variancePosY];      %Noise of position detection on image of X and Y are uncorrelated (0 covariance)
+% Ex = [dt^4/4 0 dt^3/2 0; ...
+%     0 dt^4/4 0 dt^3/2; ...
+%     dt^3/2 0 dt^2 0; ...
+%     0 dt^3/2 0 dt^2].*accelNoiseMag^2; % Ex convert the process noise (stdv) into covariance matrix
+
+%Ex = [variancePosX 0 0 0;0 variancePosY 0 0; 0 0 varianceVelX 0; 0 0 0 varianceVelY];
+Ex = eye(4)*variancePosX;
 P = Ex;  % estimate of initial Hexbug position variance (covariance matrix)
 
 %state matrix (position, speed)
@@ -218,23 +239,29 @@ u = accel;
 
 A = [1 0 dt 0; 0 1 0 dt; 0 0 1 0; 0 0 0 1];
 B = [dt^2/2; dt^2/2; dt ; dt];
-C = [1 0 0 0; 0 1 0 0];
+H = [1 0 0 0; 0 1 0 0];
+
+%Find the frame with the most detected cells. Used to create empty arrays later   
+%[maxNumCells, maxIndex] = max(cellfun('size', finalCentroidCellArrayX, 1));
+maxNumCells = 1000;
 
 %% initize result variables
 Q_loc_meas = []; % the fly detecions  extracted by the detection algo
 %% initize estimation variables for two dimensions
 Q = [finalCentroidCellArrayX{startFrame} finalCentroidCellArrayY{startFrame} zeros(length(finalCentroidCellArrayX{startFrame}),1) zeros(length(finalCentroidCellArrayY{startFrame}),1)]';
-Q_estimate = nan(4,2000);
+Q_estimate = nan(4,maxNumCells);
 Q_estimate(:,1:size(Q,2)) = Q;  %estimate of initial location estimation of where the flies are(what we are updating)
-Q_loc_estimateY = nan(2000); %  position estimate
-Q_loc_estimateX= nan(2000); %  position estimate
+Q_loc_estimateX= nan(maxNumCells); %  position estimate
+Q_loc_estimateY = nan(maxNumCells); %  position estimate
 P_estimate = P;  %covariance estimator
-strk_trks = zeros(1,2000);  %counter of how many strikes a track has gotten
-nD = size(finalCentroidCellArrayX{1},2); %initize number of detections
+
+strk_trks = zeros(1,maxNumCells);  %counter of how many strikes a track has gotten
+nD = size(finalCentroidCellArrayX{1},1); %initize number of detections
 nF =  find(isnan(Q_estimate(1,:))==1,1)-1 ; %initize number of track estimates
 
 %% TODO: ADAPT EVERYTHING UNDER THIS LINE
-
+trackedCellsX = cell(size(imageList));
+trackedCellsY = cell(size(imageList));
 %for each frame
 for t = startFrame:length(imageList)
     
@@ -254,7 +281,7 @@ for t = startFrame:length(imageList)
     %predict next covariance
     P = A * P* A' + Ex;
     % Kalman Gain
-    K = P*C'*inv(C*P*C'+Ez);
+    K = P*H'*inv(H*P*H'+Ez);
     
     
     %% now we assign the detections to estimated track positions
@@ -271,10 +298,11 @@ for t = startFrame:length(imageList)
     %make asgn = 0 for that tracking element
     
     %check 1: is the detection far from the observation? if so, reject it.
+    MAX_DISTANCE_MOVED = 150;
     rej = [];
     for F = 1:nF
         if asgn(F) > 0
-            rej(F) =  est_dist(F,asgn(F)) < 50 ;
+            rej(F) =  est_dist(F,asgn(F)) < MAX_DISTANCE_MOVED ;
         else
             rej(F) = 0;
         end
@@ -286,13 +314,13 @@ for t = startFrame:length(imageList)
     k = 1;
     for F = 1:length(asgn)
         if asgn(F) > 0
-            Q_estimate(:,k) = Q_estimate(:,k) + K * (Q_loc_meas(asgn(F),:)' - C * Q_estimate(:,k));
+            Q_estimate(:,k) = Q_estimate(:,k) + K * (Q_loc_meas(asgn(F),:)' - H * Q_estimate(:,k));
         end
         k = k + 1;
     end
     
     % update covariance estimation.
-    P =  (eye(4)-K*C)*P;
+    P =  (eye(4)-K*H)*P;
     
     %% Store data
     Q_loc_estimateX(t,1:nF) = Q_estimate(1,1:nF);
@@ -318,17 +346,18 @@ for t = startFrame:length(imageList)
         strk_trks(no_trk_list) = strk_trks(no_trk_list) + 1;
     end
     
+    MAX_TRACK_STRIKES = 2;
     %if a track has a strike greater than 6, delete the tracking. i.e.
     %make it nan first vid = 3
-    bad_trks = find(strk_trks > 6);
+    bad_trks = find(strk_trks > MAX_TRACK_STRIKES);
     Q_estimate(:,bad_trks) = NaN;
     
     %%{
-    clf
+    %clf
     img = croppedImages{t};
-    imshow(img);
+    figure, imshow(img);
     hold on;
-    plot(finalCentroidCellArrayY{t}(:),finalCentroidCellArrayX{t}(:),'or'); % the actual tracking
+    plot(finalCentroidCellArrayX{t}(:),finalCentroidCellArrayY{t}(:),'or'); % the actual tracking
     T = size(Q_loc_estimateX,2);
     Ms = [3 5]; %marker sizes
     c_list = ['r' 'b' 'g' 'c' 'm' 'y']
@@ -343,14 +372,31 @@ for t = startFrame:length(imageList)
             end
             tmX = Q_loc_estimateX(t-st:t,Dc);
             tmY = Q_loc_estimateY(t-st:t,Dc);
-            plot(tmY,tmX,'.-','markersize',Ms(Sz),'color',c_list(Cz),'linewidth',3)
+            plot(tmX,tmY,'.-','markersize',Ms(Sz),'color',c_list(Cz),'linewidth',3)
+            
+            trackedCellsX{t} = tmX;
+            trackedCellsY{t} = tmY;
+            
             axis off
         end
     end
-    pause(1)
+    %pause(1)
     %}
     
     t
     
 end
+% 
+%% Output the tracked cells in terms of...csv maybe? Columns: Cell ID#|Frame|X Pos|Y Pos
+
+for i = startFrame:length(imageList)-1
+    figure, imshow(croppedImages{i});
+    hold on
+    numCellsTracked = sum(~isnan(Q_loc_estimateX(i,:)),2);
+    scatter(Q_loc_estimateX(i,1:numCellsTracked),Q_loc_estimateY(i,1:numCellsTracked),'d');
+    plot(finalCentroidCellArrayX{i},finalCentroidCellArrayY{i},'o');
+ 
+
+end
+
 
