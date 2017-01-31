@@ -16,11 +16,11 @@ IMAGE_CROP_X2 = 1391; %Bot right corner of cropping window
 IMAGE_CROP_Y2 = 1039; %Bot right c orner of cropping window
 
 %Get image folder name from C# program:
-%imageFolderPath = 'C:\Users\Jeff.JEFF-PC\Google Drive\Grad School Research\Matlab Prototype\Sample Images\1';
-%imageFolderPath = 'C:\Users\MDL\Google Drive\Grad School Research\Matlab Prototype\Sample Images\Test Paint';
-%imageFolderPath = 'C:\Users\MDL\Google Drive\Grad School Research\Matlab Prototype\Sample Images\1';
-imageFolderPath = 'C:\Users\MDL\Google Drive\Grad School Research\Matlab Prototype\Sample Images\lncap for cell tracking software';
+
+imageFolderPath = 'C:\Users\MDL\Google Drive\Grad School Research\Matlab Prototype\Sample Images\Auto cell tracking pics\1';
 %imageFolderPath = 'C:\Users\Jeff.JEFF-PC\Google Drive\Grad School Research\Matlab Prototype\Sample Images\lncap for cell tracking software';
+
+filename = 'test.csv'; %get this from C# as well
 
 imageList = dir(fullfile(imageFolderPath,'*bmp'));
 %Loop these calculations through each image in the file folder
@@ -260,8 +260,7 @@ nD = size(finalCentroidCellArrayX{1},1); %initize number of detections
 nF =  find(isnan(Q_estimate(1,:))==1,1)-1 ; %initize number of track estimates
 
 %% TODO: ADAPT EVERYTHING UNDER THIS LINE
-trackedCellsX = cell(size(imageList));
-trackedCellsY = cell(size(imageList));
+
 %for each frame
 for t = startFrame:length(imageList)
     
@@ -298,7 +297,7 @@ for t = startFrame:length(imageList)
     %make asgn = 0 for that tracking element
     
     %check 1: is the detection far from the observation? if so, reject it.
-    MAX_DISTANCE_MOVED = 150;
+    MAX_DISTANCE_MOVED = 50;
     rej = [];
     for F = 1:nF
         if asgn(F) > 0
@@ -372,10 +371,7 @@ for t = startFrame:length(imageList)
             end
             tmX = Q_loc_estimateX(t-st:t,Dc);
             tmY = Q_loc_estimateY(t-st:t,Dc);
-            plot(tmX,tmY,'.-','markersize',Ms(Sz),'color',c_list(Cz),'linewidth',3)
-            
-            trackedCellsX{t} = tmX;
-            trackedCellsY{t} = tmY;
+            plot(tmX,tmY,'o-','markersize',Ms(Sz),'color',c_list(Cz),'linewidth',3)
             
             axis off
         end
@@ -389,14 +385,34 @@ end
 % 
 %% Output the tracked cells in terms of...csv maybe? Columns: Cell ID#|Frame|X Pos|Y Pos
 
-for i = startFrame:length(imageList)-1
-    figure, imshow(croppedImages{i});
-    hold on
-    numCellsTracked = sum(~isnan(Q_loc_estimateX(i,:)),2);
-    scatter(Q_loc_estimateX(i,1:numCellsTracked),Q_loc_estimateY(i,1:numCellsTracked),'d');
-    plot(finalCentroidCellArrayX{i},finalCentroidCellArrayY{i},'o');
- 
+trackedCellsX = cell(size(imageList));
+trackedCellsY = cell(size(imageList));
+numEntry = 1;
+exportOutput = [];
+
+for i=1:nF
+    numFramesTracked = sum(~isnan(Q_loc_estimateX(:,i)));
+    trackedCellsX{i} = nan(numFramesTracked,1);
+    trackedCellsY{i} = nan(numFramesTracked,1);
+    
+    for j=1:nF
+        if isnan(Q_loc_estimateX(j,i))
+            break
+        end
+        numEntry = numEntry + 1;
+        
+        trackedCellsX{i}(j) = Q_loc_estimateX(j,i);
+        trackedCellsY{i}(j) = Q_loc_estimateY(j,i);
+
+        exportOutput(numEntry,1) = i;
+        exportOutput(numEntry,2) = j;
+        exportOutput(numEntry,3) = Q_loc_estimateX(j,i);
+        exportOutput(numEntry,4) = Q_loc_estimateY(j,i);
+        
+        
+    end
 
 end
 
+csvwrite(filename,exportOutput);
 
