@@ -165,6 +165,33 @@ namespace AutoCellTracker
 
         }
 
+                private void btnTrack_Click(object sender, RoutedEventArgs e)
+        {
+
+            // Create the MATLAB instance 
+            MLApp.MLApp matlab = new MLApp.MLApp();
+
+            // Change to the directory where the function is located 
+            matlab.Execute(@"cd 'C:\Users\MDL\Google Drive\Grad School Research\Matlab Prototype'");
+
+            object result = null;
+
+            string imageFolderPath = folderTextBlock.Text;
+
+            matlab.Feval("CellDetect_CSharpFunction", 2, out result, imageFolderPath);
+
+
+            object[] res = result as object[];
+        }
+
+        private void btnTrackSettings_Click(object sender, RoutedEventArgs e)
+        {
+            flyoutSettings.IsOpen = false;
+            //open crop window
+            cropWindow cropWindow = new cropWindow();
+            cropWindow.Show();
+        }
+
         /// <summary>
         /// Delete a GDI object
         /// </summary>
