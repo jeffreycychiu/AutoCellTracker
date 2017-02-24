@@ -185,10 +185,11 @@ namespace AutoCellTracker
             string imageFolderPath = folderTextBlock.Text;
             //string imageFolderPath = @"C:\Users\MDL\Google Drive\Grad School Research\Matlab Prototype\Sample Images\Auto cell tracking pics\1";
 
-            //matlab.Feval("CellDetect_CSharpFunction", 2, out result, imageFolderPath, roundLimit, cellAreaMinimum, cellFudgeUpperBound, cellFudgeLowerBound);
-            matlab.Feval("CellDetect_CSharpFunction", 2, out result, imageFolderPath);
+            matlab.Feval("CellDetect_CSharpFunction", 2, out result, imageFolderPath, roundLimit, cellAreaMinimum, cellFudgeUpperBound, cellFudgeLowerBound);
 
+            //matlab.Feval("CellDetect_CSharpFunction", 2, out result, imageFolderPath);
 
+            
             object[] res = result as object[];
         }
 
