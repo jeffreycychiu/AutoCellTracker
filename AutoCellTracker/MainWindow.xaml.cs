@@ -34,6 +34,12 @@ namespace AutoCellTracker
         //List<Emgu.CV.IImage> imageList = new List<Emgu.CV.IImage>();
         public List<Emgu.CV.Image<Bgr,Byte>> imageList = new List<Emgu.CV.Image<Bgr, Byte>>();
 
+        //Variables for the tracking settings
+        public double roundLimit = 0.35;
+        public int cellAreaMinimum = 500;
+        public double cellFudgeUpperBound = 5;
+        public double cellFudgeLowerBound = 0.5;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -177,7 +183,9 @@ namespace AutoCellTracker
             object result = null;
 
             string imageFolderPath = folderTextBlock.Text;
+            //string imageFolderPath = @"C:\Users\MDL\Google Drive\Grad School Research\Matlab Prototype\Sample Images\Auto cell tracking pics\1";
 
+            //matlab.Feval("CellDetect_CSharpFunction", 2, out result, imageFolderPath, roundLimit, cellAreaMinimum, cellFudgeUpperBound, cellFudgeLowerBound);
             matlab.Feval("CellDetect_CSharpFunction", 2, out result, imageFolderPath);
 
 

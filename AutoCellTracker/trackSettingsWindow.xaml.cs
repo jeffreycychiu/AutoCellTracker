@@ -23,5 +23,15 @@ namespace AutoCellTracker
         {
             InitializeComponent();
         }
+
+        private void btnApplyTrackSettings_Click(object sender, RoutedEventArgs e)
+        {
+            double roundLimit = double.Parse(textBlockRoundLimit.Text);
+            double cellAreaMinimum = double.Parse(textBlockCellAreaMinimum.Text);
+            double cellFudgeUpper = double.Parse(textBlockCellFudgeUpper.Text);
+            double cellFudgeLower = double.Parse(textBlockCellFudgeLower.Text);
+
+            //MainWindow.roundLimit = roundLimit;
+        }
     }
 }
