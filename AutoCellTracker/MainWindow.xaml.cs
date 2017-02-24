@@ -187,9 +187,11 @@ namespace AutoCellTracker
         private void btnTrackSettings_Click(object sender, RoutedEventArgs e)
         {
             flyoutSettings.IsOpen = false;
-            //open crop window
-            cropWindow cropWindow = new cropWindow();
-            cropWindow.Show();
+            //open track settings window
+
+
+            trackSettingsWindow trackSettingsWindow = new trackSettingsWindow();
+            trackSettingsWindow.Show();
         }
 
         /// <summary>

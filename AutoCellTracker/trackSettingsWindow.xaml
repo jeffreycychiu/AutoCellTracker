@@ -5,8 +5,28 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AutoCellTracker"
         mc:Ignorable="d"
-        Title="trackSettingsWindow" Height="300" Width="300">
+        xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        Title="Track Settings" Height="300" Width="300">
     <Grid>
-        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="1*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="1*" />
+        </Grid.RowDefinitions>
+
+        <TextBlock x:Name="textBlockRoundLimit" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Round Limit:"/>
+        <TextBlock x:Name="textBlockCellAreaMinimum" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Cell Area Minumum:"/>
+        <TextBlock x:Name="textBlockCellFudgeUpper" Grid.Row="2" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Cell Fudge Upper Bound:"/>
+        <TextBlock x:Name="textBlockCellFudgeLower" Grid.Row="3" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Cell Fudge Lower Bound:"/>
+
+        <TextBox x:Name="textBoxRoundLimit" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Text="0.5"/>
+        <TextBox x:Name="textBoxCellAreaMinimum" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Text="500"/>
+        <TextBox x:Name="textBoxCellFudgeUpper" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Text="5"/>
+        <TextBox x:Name="textBoxCellFudgeLower" Grid.Row="3" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Text="0.5"/>
     </Grid>
 </Window>
