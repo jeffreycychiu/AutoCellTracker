@@ -34,9 +34,9 @@ namespace AutoCellTracker
         //List<Emgu.CV.IImage> imageList = new List<Emgu.CV.IImage>();
         public List<Emgu.CV.Image<Bgr,Byte>> imageList = new List<Emgu.CV.Image<Bgr, Byte>>();
 
-        //Variables for the tracking settings
+        //Variables for the tracking settings (for some reason you can't pass integer variables?)
         public double roundLimit = 0.35;
-        public int cellAreaMinimum = 500;
+        public double cellAreaMinimum = 500;
         public double cellFudgeUpperBound = 5;
         public double cellFudgeLowerBound = 0.5;
 
@@ -189,8 +189,9 @@ namespace AutoCellTracker
 
             //matlab.Feval("CellDetect_CSharpFunction", 2, out result, imageFolderPath);
 
-            
             object[] res = result as object[];
+            Console.WriteLine("new values: a = " + res[0] + " b = " + res[1]);
+
         }
 
         private void btnTrackSettings_Click(object sender, RoutedEventArgs e)
