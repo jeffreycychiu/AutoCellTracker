@@ -31,7 +31,9 @@ namespace AutoCellTracker
             double cellFudgeUpper = double.Parse(textBlockCellFudgeUpper.Text);
             double cellFudgeLower = double.Parse(textBlockCellFudgeLower.Text);
 
-            //MainWindow.roundLimit = roundLimit;
+            //MainWindow.Parameters.roundLimit = roundLimit;
+
+               
         }
     }
 }

@@ -35,10 +35,15 @@ namespace AutoCellTracker
         public List<Emgu.CV.Image<Bgr,Byte>> imageList = new List<Emgu.CV.Image<Bgr, Byte>>();
 
         //Variables for the tracking settings (for some reason you can't pass integer variables?)
+        /*
         public double roundLimit = 0.35;
         public double cellAreaMinimum = 500;
         public double cellFudgeUpperBound = 5;
         public double cellFudgeLowerBound = 0.5;
+        */
+
+        //create parameters class with all the values for tracking/cropping etc
+        Parameters parameters = new Parameters();
 
         public MainWindow()
         {
@@ -185,7 +190,17 @@ namespace AutoCellTracker
             string imageFolderPath = folderTextBlock.Text;
             //string imageFolderPath = @"C:\Users\MDL\Google Drive\Grad School Research\Matlab Prototype\Sample Images\Auto cell tracking pics\1";
 
-            matlab.Feval("CellDetect_CSharpFunction", 2, out result, imageFolderPath, roundLimit, cellAreaMinimum, cellFudgeUpperBound, cellFudgeLowerBound);
+            double roundLimit = parameters.roundLimit;
+            double cellAreaMinimum = parameters.cellAreaMinimum;
+            double cellFudgeUpperBound = parameters.cellFudgeUpperBound;
+            double cellFudgeLowerBound = parameters.cellFudgeLowerBound;
+            double cropWindowX1 = parameters.cropWindowX1;
+            double cropWindowY1 = parameters.cropWindowY1;
+            double cropWindowX2 = parameters.cropWindowX2;
+            double cropWindowY2 = parameters.cropWindowY2;
+
+            matlab.Feval("CellDetect_CSharpFunction", 2, out result, imageFolderPath, roundLimit, cellAreaMinimum, cellFudgeUpperBound, cellFudgeLowerBound, 
+                cropWindowX1, cropWindowY1, cropWindowX2, cropWindowY2);
 
             //matlab.Feval("CellDetect_CSharpFunction", 2, out result, imageFolderPath);
 
@@ -202,6 +217,37 @@ namespace AutoCellTracker
 
             trackSettingsWindow trackSettingsWindow = new trackSettingsWindow();
             trackSettingsWindow.Show();
+        }
+
+        //Parameters that are used to pass to the matlab program. Determines the settings of the image processing code
+        public class Parameters
+        {
+            public double roundLimit { get; set; }
+            public double cellAreaMinimum { get; set; }
+            public double cellFudgeUpperBound { get; set; }
+            public double cellFudgeLowerBound { get; set; }
+            public double cropWindowX1 { get; set; }
+            public double cropWindowY1 { get; set; }
+            public double cropWindowX2 { get; set; }
+            public double cropWindowY2 { get; set; }
+
+            //Default constructor
+            public Parameters()
+            {   
+                //Default values     
+                roundLimit = 0.35;
+                cellAreaMinimum = 500;
+                cellFudgeUpperBound = 5;
+                cellFudgeLowerBound = 0.5;
+
+                //default cropping window for the software on the microscope "Donatello"
+                cropWindowX1 = 0;
+                cropWindowY1 = 0;
+                cropWindowX2 = 1393;
+                cropWindowY2 = 1041;
+
+            }
+
         }
 
         /// <summary>
