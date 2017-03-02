@@ -211,12 +211,36 @@ namespace AutoCellTracker
 
         private void btnTrackSettings_Click(object sender, RoutedEventArgs e)
         {
-            flyoutSettings.IsOpen = false;
+            //flyoutSettings.IsOpen = false;
             //open track settings window
 
+            //trackSettingsWindow trackSettingsWindow = new trackSettingsWindow();
+            //trackSettingsWindow.Show();
 
-            trackSettingsWindow trackSettingsWindow = new trackSettingsWindow();
-            trackSettingsWindow.Show();
+            //open track settings flyout
+            flyoutTrackSettings.IsOpen = !flyoutTrackSettings.IsOpen;
+        }
+
+        private void btnApplyTrackSettings_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                parameters.roundLimit = double.Parse(textBoxRoundLimit.Text);
+                parameters.cellAreaMinimum = double.Parse(textBoxCellAreaMinimum.Text);
+                parameters.cellFudgeLowerBound = double.Parse(textBoxCellFudgeLower.Text);
+                parameters.cellFudgeUpperBound = double.Parse(textBoxCellFudgeUpper.Text);
+
+                Console.WriteLine("roundLimit: " + parameters.roundLimit);
+                Console.WriteLine("cellAreaMinimum: " + parameters.cellAreaMinimum);
+                Console.WriteLine("cellFudgeLower: " + parameters.cellFudgeLowerBound);
+                Console.WriteLine("cellFudgeUpper: " + parameters.cellFudgeUpperBound);
+            }
+            catch (FormatException ex)
+            {
+                MessageBox.Show("Error parsing values:\n" + ex);
+            }
+            
+
         }
 
         //Parameters that are used to pass to the matlab program. Determines the settings of the image processing code
