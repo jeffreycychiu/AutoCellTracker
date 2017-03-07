@@ -97,7 +97,7 @@
                     <Button Name="btnCrop" Grid.Row="0" Grid.Column="0" Click="btnCrop_Click">Crop</Button>
                     <Button Name="btnSave" Grid.Row="0" Grid.Column="1" Click="btnSave_Click">Save Images</Button>
                     <Button Name="btnTrackSettings" Grid.Row="1" Grid.Column="0" Click="btnTrackSettings_Click">Track Settings</Button>
-                    <Button Name="btnTrack" Grid.Row="1" Grid.Column="1" Click="btnTrack_Click">Track</Button>
+                    <Button Name="btnTrack" Grid.Row="1" Grid.Column="1" IsEnabled="False" Click="btnTrack_Click">Track</Button>
                     
                 </Grid>
                 

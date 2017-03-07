@@ -62,7 +62,11 @@ namespace AutoCellTracker
             if (!VistaFolderBrowserDialog.IsVistaFolderDialogSupported)
                 MessageBox.Show(this, "Because you are not using Windows Vista or later, the regular folder browser dialog will be used. Please use Windows Vista to see the new dialog.", "Sample folder browser dialog");
             if ((bool)dialog.ShowDialog(this))
+            {
                 folderTextBlock.Text = dialog.SelectedPath;
+                btnTrack.IsEnabled = true;
+            }
+                
 
             try
             {
@@ -194,14 +198,18 @@ namespace AutoCellTracker
             double cellAreaMinimum = parameters.cellAreaMinimum;
             double cellFudgeUpperBound = parameters.cellFudgeUpperBound;
             double cellFudgeLowerBound = parameters.cellFudgeLowerBound;
-            double cropWindowX1 = parameters.cropWindowX1;
-            double cropWindowY1 = parameters.cropWindowY1;
-            double cropWindowX2 = parameters.cropWindowX2;
-            double cropWindowY2 = parameters.cropWindowY2;
+            int cropWindowX1 = parameters.cropWindowX1;
+            int cropWindowY1 = parameters.cropWindowY1;
+            int cropWindowX2 = parameters.cropWindowX2;
+            int cropWindowY2 = parameters.cropWindowY2;
 
-            matlab.Feval("CellDetect_CSharpFunction", 2, out result, imageFolderPath, roundLimit, cellAreaMinimum, cellFudgeUpperBound, cellFudgeLowerBound, 
-                cropWindowX1, cropWindowY1, cropWindowX2, cropWindowY2);
+            Console.WriteLine("1droundLimit: " + parameters.roundLimit);
+            Console.WriteLine("1cellAreaMinimum: " + parameters.cellAreaMinimum);
+            Console.WriteLine("1cellFudgeLower: " + parameters.cellFudgeLowerBound);
+            Console.WriteLine("1cellFudgeUpper: " + parameters.cellFudgeUpperBound);
 
+            matlab.Feval("CellDetect_CSharpFunction", 2, out result, imageFolderPath, roundLimit, cellAreaMinimum, cellFudgeUpperBound, cellFudgeLowerBound, cropWindowX1, cropWindowY1, cropWindowX2, cropWindowY2);
+            //matlab.Feval("CellDetect_CSharpFunction", 2, out result, imageFolderPath, roundLimit, cellAreaMinimum, cellFudgeUpperBound, cellFudgeLowerBound);
             //matlab.Feval("CellDetect_CSharpFunction", 2, out result, imageFolderPath);
 
             object[] res = result as object[];
@@ -250,10 +258,10 @@ namespace AutoCellTracker
             public double cellAreaMinimum { get; set; }
             public double cellFudgeUpperBound { get; set; }
             public double cellFudgeLowerBound { get; set; }
-            public double cropWindowX1 { get; set; }
-            public double cropWindowY1 { get; set; }
-            public double cropWindowX2 { get; set; }
-            public double cropWindowY2 { get; set; }
+            public int cropWindowX1 { get; set; }
+            public int cropWindowY1 { get; set; }
+            public int cropWindowX2 { get; set; }
+            public int cropWindowY2 { get; set; }
 
             //Default constructor
             public Parameters()
