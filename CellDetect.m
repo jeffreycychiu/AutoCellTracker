@@ -1,15 +1,12 @@
-
 %Prototype for cell detection algorithms for Auto Cell Tracker
 %Based off: http://www.mathworks.com/help/images/examples/detecting-a-cell-using-image-segmentation.html
-clear all
-close all
-clc
 
-%DEFINED THRESHOLDS AND VALUES - These should be taken from the C# UI
+% DEFINED THRESHOLDS AND VALUES - These should be taken from the C# UI
 ROUND_LIMIT = 0.35;       %Threshold for roundness measurement. 1= perfectly round.
+CELL_AREA_MINIMUM = 500;
 CELL_FUDGE_UPPER_BOUND = 5; %Percentage of cell size allowed larger than median size (+/- % of median size)
 CELL_FUDGE_LOWER_BOUND = 0.5; %Percentage of cell size allowed smaller than median size (+/- % of median size)
-CELL_AREA_MINIMUM = 500;
+
 IMAGE_CROP_X1 = 0; %Top left corner of cropping window
 IMAGE_CROP_Y1 = 0; %Top left corner of cropping window
 IMAGE_CROP_X2 = 1391; %Bot right corner of cropping window
@@ -20,7 +17,9 @@ IMAGE_CROP_Y2 = 1039; %Bot right c orner of cropping window
 imageFolderPath = 'C:\Users\MDL\Google Drive\Grad School Research\Matlab Prototype\Sample Images\Auto cell tracking pics\1';
 %imageFolderPath = 'C:\Users\Jeff.JEFF-PC\Google Drive\Grad School Research\Matlab Prototype\Sample Images\lncap for cell tracking software';
 
-filename = 'test.csv'; %get this from C# as well
+%create file name to write the data to at the end.
+filename = strcat(datestr(datetime), ' Tracked Cells.csv'); %file name for csv save
+filename = strrep(filename,':','-');
 
 imageList = dir(fullfile(imageFolderPath,'*bmp'));
 %Loop these calculations through each image in the file folder
@@ -353,29 +352,29 @@ for t = startFrame:length(imageList)
     
     %%{
     %clf
-    img = croppedImages{t};
-    figure, imshow(img);
-    hold on;
-    plot(finalCentroidCellArrayX{t}(:),finalCentroidCellArrayY{t}(:),'or'); % the actual tracking
-    T = size(Q_loc_estimateX,2);
-    Ms = [3 5]; %marker sizes
-    c_list = ['r' 'b' 'g' 'c' 'm' 'y']
-    for Dc = 1:nF
-        if ~isnan(Q_loc_estimateX(t,Dc))
-            Sz = mod(Dc,2)+1; %pick marker size
-            Cz = mod(Dc,6)+1; %pick color
-            if t < 21
-                st = t-1;
-            else
-                st = 19;
-            end
-            tmX = Q_loc_estimateX(t-st:t,Dc);
-            tmY = Q_loc_estimateY(t-st:t,Dc);
-            plot(tmX,tmY,'o-','markersize',Ms(Sz),'color',c_list(Cz),'linewidth',3)
-            
-            axis off
-        end
-    end
+%     img = croppedImages{t};
+%     figure, imshow(img);
+%     hold on;
+%     plot(finalCentroidCellArrayX{t}(:),finalCentroidCellArrayY{t}(:),'or'); % the actual tracking
+%     T = size(Q_loc_estimateX,2);
+%     Ms = [3 5]; %marker sizes
+%     c_list = ['r' 'b' 'g' 'c' 'm' 'y']
+%     for Dc = 1:nF
+%         if ~isnan(Q_loc_estimateX(t,Dc))
+%             Sz = mod(Dc,2)+1; %pick marker size
+%             Cz = mod(Dc,6)+1; %pick color
+%             if t < 21
+%                 st = t-1;
+%             else
+%                 st = 19;
+%             end
+%             tmX = Q_loc_estimateX(t-st:t,Dc);
+%             tmY = Q_loc_estimateY(t-st:t,Dc);
+%             plot(tmX,tmY,'o-','markersize',Ms(Sz),'color',c_list(Cz),'linewidth',3)
+%             
+%             axis off
+%         end
+%     end
     %pause(1)
     %}
     
@@ -387,8 +386,10 @@ end
 
 trackedCellsX = cell(size(imageList));
 trackedCellsY = cell(size(imageList));
-numEntry = 1;
+
 exportOutput = [];
+
+numEntry = 1;
 
 for i=1:nF
     numFramesTracked = sum(~isnan(Q_loc_estimateX(:,i)));
@@ -406,13 +407,13 @@ for i=1:nF
 
         exportOutput(numEntry,1) = i;
         exportOutput(numEntry,2) = j;
-        exportOutput(numEntry,3) = Q_loc_estimateX(j,i);
-        exportOutput(numEntry,4) = Q_loc_estimateY(j,i);
+        exportOutput(numEntry,3) = round(Q_loc_estimateX(j,i));
+        exportOutput(numEntry,4) = round(Q_loc_estimateY(j,i));
         
         
     end
 
 end
 
-csvwrite(filename,exportOutput);
-
+csvwrite(fullfile(imageFolderPath,filename),exportOutput);
+%add headers to csv file
