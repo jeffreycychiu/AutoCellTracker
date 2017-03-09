@@ -20,6 +20,10 @@ using Ookii.Dialogs.Wpf;
 using Emgu.CV;
 using Emgu.Util;
 using Emgu.CV.Structure;
+using AutoCellTracker;
+using MathWorks.MATLAB.NET.Arrays;
+using MathWorks.MATLAB.NET.Utility;
+
 
 namespace AutoCellTracker
 {
@@ -45,6 +49,11 @@ namespace AutoCellTracker
         //create parameters class with all the values for tracking/cropping etc
         Parameters parameters = new Parameters();
 
+        MLApp.MLApp matlab = new MLApp.MLApp();
+
+        // Change to the directory where the function is located 
+        
+
         public MainWindow()
         {
             InitializeComponent();
@@ -53,8 +62,6 @@ namespace AutoCellTracker
         private void selectFolder_Click(object sender, RoutedEventArgs e)
         {
             //Select the folder which all the images are kept
-            //FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog();
-            //DialogResult result = folderBrowserDialog.ShowDialog();
 
             VistaFolderBrowserDialog dialog = new VistaFolderBrowserDialog();
             dialog.Description = "Navigate to folder containing images";
@@ -77,6 +84,8 @@ namespace AutoCellTracker
                 currentImage = 0;
 
                 //TODO: Add support for other image formats
+                imageFilePath.Clear();
+                imageFilePath.TrimExcess();
                 foreach (var imageFile in directoryInfo.GetFiles("*.bmp"))
                 {
                     imageFilePath.Add(imageFile.FullName);
@@ -89,6 +98,9 @@ namespace AutoCellTracker
             }
 
             //Load images - create a list of EmguCV IImages
+            imageList.Clear();
+            imageList.TrimExcess();
+
             for (int i = 0; i < numImages; i++)
             {
                 Image<Bgr, Byte> image = new Image<Bgr, Byte>((imageFilePath[i]));
@@ -159,24 +171,7 @@ namespace AutoCellTracker
         private void btnSave_Click(object sender, RoutedEventArgs e)
         {
             //TEMPORARY - using this button to test the matlab function integration
-            int a = 8;
-            int b = 3;
-            Console.WriteLine("original values: a = " + a.ToString() + " b = " + b.ToString());
 
-            // Create the MATLAB instance 
-            MLApp.MLApp matlab = new MLApp.MLApp();
-
-            // Change to the directory where the function is located 
-            matlab.Execute(@"cd 'C:\Users\MDL\Google Drive\Grad School Research\Matlab Prototype'");
-
-            object result = null;
-
-            matlab.Feval("testCSharpFunc", 2, out result, a, b);
-
-
-            object[] res = result as object[];
-
-            Console.WriteLine("new values: a = " + res[0] + " b = " + res[1]);
 
         }
 
@@ -184,12 +179,13 @@ namespace AutoCellTracker
         {
 
             // Create the MATLAB instance 
-            MLApp.MLApp matlab = new MLApp.MLApp();
+
+            //MLApp.MLApp matlab = new MLApp.MLApp();
 
             // Change to the directory where the function is located 
             matlab.Execute(@"cd 'C:\Users\MDL\Google Drive\Grad School Research\Matlab Prototype'");
 
-            object result = null;
+           
 
             string imageFolderPath = folderTextBlock.Text;
             //string imageFolderPath = @"C:\Users\MDL\Google Drive\Grad School Research\Matlab Prototype\Sample Images\Auto cell tracking pics\1";
@@ -203,17 +199,36 @@ namespace AutoCellTracker
             int cropWindowX2 = parameters.cropWindowX2;
             int cropWindowY2 = parameters.cropWindowY2;
 
-            Console.WriteLine("1droundLimit: " + parameters.roundLimit);
-            Console.WriteLine("1cellAreaMinimum: " + parameters.cellAreaMinimum);
-            Console.WriteLine("1cellFudgeLower: " + parameters.cellFudgeLowerBound);
-            Console.WriteLine("1cellFudgeUpper: " + parameters.cellFudgeUpperBound);
-
+            object result = null;
             matlab.Feval("CellDetect_CSharpFunction", 2, out result, imageFolderPath, roundLimit, cellAreaMinimum, cellFudgeUpperBound, cellFudgeLowerBound, cropWindowX1, cropWindowY1, cropWindowX2, cropWindowY2);
-            //matlab.Feval("CellDetect_CSharpFunction", 2, out result, imageFolderPath, roundLimit, cellAreaMinimum, cellFudgeUpperBound, cellFudgeLowerBound);
-            //matlab.Feval("CellDetect_CSharpFunction", 2, out result, imageFolderPath);
 
-            object[] res = result as object[];
-            Console.WriteLine("new values: a = " + res[0] + " b = " + res[1]);
+
+
+
+
+
+            //----TRY TO RUN IT AS A COMPILED DLL FOR SPEEED: Delayed for now just running MLapp in beginning of program---
+
+
+            //AutoCellTrackerMatlab obj = null;
+            //MWNumericArray output = null;
+            //MWArray[] result = null;
+
+            //try
+            //{
+            //    obj = new AutoCellTrackerMatlab();
+
+            //    result = obj.CellDetect_CSharpFunction(2, imageFolderPath, roundLimit, cellAreaMinimum, cellFudgeUpperBound, cellFudgeLowerBound, cropWindowX1, cropWindowY1, cropWindowX2, cropWindowY2);
+            //    output = (MWNumericArray)result[0];
+            //    Console.WriteLine("dll output: " + output);
+            //}
+            //catch
+            //{
+            //    throw;
+            //}
+
+            //object[] res = result as object[];
+            //Console.WriteLine("new values: a = " + res[0] + " b = " + res[1]);
 
         }
 
@@ -312,6 +327,28 @@ namespace AutoCellTracker
             }
         }
 
+        /// <summary>
+        /// Scroll through next/previous images on left/right arrow key press. NOT CURRENTLY WORKING
+        /// </summary>
+        private void imageDisplay_KeyDown(object sender, KeyEventArgs e)
+        {
+            Console.WriteLine("imageDisplay key down");
+            if (e.Key == Key.Left)
+            {
+                prevImage();
+            }
+                
+            else if (e.Key == Key.Right)
+                nextImage();
+        }
 
+        private void borderImage_KeyDown(object sender, KeyEventArgs e)
+        {
+            Console.WriteLine("border key down");
+            if (e.Key == Key.Left)
+                prevImage();
+            else if (e.Key == Key.Right)
+                nextImage();
+        }
     }
 }
