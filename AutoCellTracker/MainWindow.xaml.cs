@@ -51,9 +51,10 @@ namespace AutoCellTracker
 
         MLApp.MLApp matlab = new MLApp.MLApp();
 
-        // Change to the directory where the function is located 
+        //Use for path - put the matlab script .m file here
+        //string startupPath = System.IO.Directory.GetCurrentDirectory();
+        string startupPath = @"'C:\Users\MDL\Google Drive\Grad School Research\Matlab Prototype'";
         
-
         public MainWindow()
         {
             InitializeComponent();
@@ -182,10 +183,9 @@ namespace AutoCellTracker
 
             //MLApp.MLApp matlab = new MLApp.MLApp();
 
-            // Change to the directory where the function is located 
-            matlab.Execute(@"cd 'C:\Users\MDL\Google Drive\Grad School Research\Matlab Prototype'");
+            // Change to the directory where the function is located
 
-           
+            matlab.Execute(@"cd " + startupPath);
 
             string imageFolderPath = folderTextBlock.Text;
             //string imageFolderPath = @"C:\Users\MDL\Google Drive\Grad School Research\Matlab Prototype\Sample Images\Auto cell tracking pics\1";
@@ -200,10 +200,14 @@ namespace AutoCellTracker
             int cropWindowY2 = parameters.cropWindowY2;
 
             object result = null;
-            matlab.Feval("CellDetect_CSharpFunction", 2, out result, imageFolderPath, roundLimit, cellAreaMinimum, cellFudgeUpperBound, cellFudgeLowerBound, cropWindowX1, cropWindowY1, cropWindowX2, cropWindowY2);
 
+            matlab.Feval("CellDetect_CSharpFunction", 1, out result, imageFolderPath, roundLimit, cellAreaMinimum, cellFudgeUpperBound, cellFudgeLowerBound, cropWindowX1, cropWindowY1, cropWindowX2, cropWindowY2);
 
+            object[] res = result as object[];
 
+            double[,] cellArray = (double[,])res[0]; // Get the 2d array of cell num/pic num/x location/y location
+
+            // Read the values from the 2D array and plot them on top of the image
 
 
 
@@ -226,9 +230,6 @@ namespace AutoCellTracker
             //{
             //    throw;
             //}
-
-            //object[] res = result as object[];
-            //Console.WriteLine("new values: a = " + res[0] + " b = " + res[1]);
 
         }
 

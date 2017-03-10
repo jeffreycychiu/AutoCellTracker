@@ -21,6 +21,7 @@
                 </Rectangle.OpacityMask>
             </Rectangle>
         </Button>
+        
 
         <TextBlock x:Name="folderTextBlock" HorizontalAlignment="Left" Margin="65,27,0,0" TextWrapping="Wrap" Text="Folder Path to Images" VerticalAlignment="Top"/>
         <TextBlock x:Name="numImagesTextBlock" HorizontalAlignment="Right" Margin="0,27,10,0" TextWrapping="Wrap" Text="Image: 0/0" VerticalAlignment="Top"/>
