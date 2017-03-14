@@ -115,6 +115,12 @@
                         <RowDefinition Height="1*" />
                         <RowDefinition Height="1*" />
                         <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="2*" />
+
 
                     </Grid.RowDefinitions>
 
@@ -122,13 +128,22 @@
                     <TextBlock x:Name="textBlockCellAreaMinimum" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Cell Area&#x0a;Minumum:"/>
                     <TextBlock x:Name="textBlockCellFudgeUpper" Grid.Row="2" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Cell Fudge&#x0a;Upper Bound:"/>
                     <TextBlock x:Name="textBlockCellFudgeLower" Grid.Row="3" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Cell Fudge&#x0a;Lower Bound:"/>
+                    <TextBlock x:Name="textBlockCropX1" Grid.Row="4" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Crop Point X1"/>
+                    <TextBlock x:Name="textBlockCropY1" Grid.Row="5" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Crop Point Y1"/>
+                    <TextBlock x:Name="textBlockCropX2" Grid.Row="6" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Crop Point X2"/>
+                    <TextBlock x:Name="textBlockCropY2" Grid.Row="7" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Crop Point Y2"/>
 
                     <TextBox x:Name="textBoxRoundLimit" Grid.Row="0" Grid.Column="1" Width="50" HorizontalAlignment="Center" VerticalAlignment="Center" Text="0.5"/>
                     <TextBox x:Name="textBoxCellAreaMinimum" Grid.Row="1" Grid.Column="1" Width="50" HorizontalAlignment="Center" VerticalAlignment="Center" Text="500"/>
                     <TextBox x:Name="textBoxCellFudgeUpper" Grid.Row="2" Grid.Column="1" Width="50" HorizontalAlignment="Center" VerticalAlignment="Center" Text="5"/>
                     <TextBox x:Name="textBoxCellFudgeLower" Grid.Row="3" Grid.Column="1" Width="50" HorizontalAlignment="Center" VerticalAlignment="Center" Text="0.5"/>
+                    <TextBox x:Name="textBoxCropX1" Grid.Row="4" Grid.Column="1" Width="50" HorizontalAlignment="Center" VerticalAlignment="Center" Text="0"/>
+                    <TextBox x:Name="textBoxCropY1" Grid.Row="5" Grid.Column="1" Width="50" HorizontalAlignment="Center" VerticalAlignment="Center" Text="0"/>
+                    <TextBox x:Name="textBoxCropX2" Grid.Row="6" Grid.Column="1" Width="50" HorizontalAlignment="Center" VerticalAlignment="Center" Text="1393"/>
+                    <TextBox x:Name="textBoxCropY2" Grid.Row="7" Grid.Column="1" Width="50" HorizontalAlignment="Center" VerticalAlignment="Center" Text="1041"/>
 
-                    <Button x:Name="btnApplyTrackSettings" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" Content="Apply Settings" Click="btnApplyTrackSettings_Click"/>
+                    <Button x:Name="btnShowCropBox" Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" Content="Show Crop Bounding Box" Click="btnShowCropBox_Click"/>
+                    <Button x:Name="btnApplyTrackSettings" Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" Height="75" HorizontalAlignment="Center" VerticalAlignment="Center" Content="Apply Settings" Click="btnApplyTrackSettings_Click"/>
                 </Grid>
 
             </Controls:Flyout>

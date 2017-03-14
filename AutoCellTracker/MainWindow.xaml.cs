@@ -178,7 +178,6 @@ namespace AutoCellTracker
 
                 private void btnTrack_Click(object sender, RoutedEventArgs e)
         {
-
             // Create the MATLAB instance 
 
             //MLApp.MLApp matlab = new MLApp.MLApp();
@@ -199,6 +198,18 @@ namespace AutoCellTracker
             int cropWindowX2 = parameters.cropWindowX2;
             int cropWindowY2 = parameters.cropWindowY2;
 
+            //Crop the images in the image list first
+            for (int i = 0; i < numImages; i++)
+            {
+                imageList[i].ROI = new System.Drawing.Rectangle(cropWindowX1, cropWindowY1, cropWindowX2, cropWindowY2);
+                Image<Bgr, byte> croppedImage = new Image<Bgr, Byte>(cropWindowX2 - cropWindowX1, cropWindowY2 - cropWindowY1);
+                croppedImage = imageList[i].Copy();
+                imageList[i] = croppedImage;
+            }
+            
+            rectCrop.Opacity = 0;
+
+          
             object result = null;
 
             matlab.Feval("CellDetect_CSharpFunction", 1, out result, imageFolderPath, roundLimit, cellAreaMinimum, cellFudgeUpperBound, cellFudgeLowerBound, cropWindowX1, cropWindowY1, cropWindowX2, cropWindowY2);
@@ -269,11 +280,6 @@ namespace AutoCellTracker
 
         private void btnTrackSettings_Click(object sender, RoutedEventArgs e)
         {
-            //flyoutSettings.IsOpen = false;
-            //open track settings window
-
-            //trackSettingsWindow trackSettingsWindow = new trackSettingsWindow();
-            //trackSettingsWindow.Show();
 
             //open track settings flyout
             flyoutTrackSettings.IsOpen = !flyoutTrackSettings.IsOpen;
@@ -287,17 +293,16 @@ namespace AutoCellTracker
                 parameters.cellAreaMinimum = double.Parse(textBoxCellAreaMinimum.Text);
                 parameters.cellFudgeLowerBound = double.Parse(textBoxCellFudgeLower.Text);
                 parameters.cellFudgeUpperBound = double.Parse(textBoxCellFudgeUpper.Text);
-
-                Console.WriteLine("roundLimit: " + parameters.roundLimit);
-                Console.WriteLine("cellAreaMinimum: " + parameters.cellAreaMinimum);
-                Console.WriteLine("cellFudgeLower: " + parameters.cellFudgeLowerBound);
-                Console.WriteLine("cellFudgeUpper: " + parameters.cellFudgeUpperBound);
+                parameters.cropWindowX1 = int.Parse(textBoxCropX1.Text);
+                parameters.cropWindowY1 = int.Parse(textBoxCropY1.Text);
+                parameters.cropWindowX2 = int.Parse(textBoxCropX2.Text);
+                parameters.cropWindowY2 = int.Parse(textBoxCropY2.Text);
+                
             }
             catch (FormatException ex)
             {
                 MessageBox.Show("Error parsing values:\n" + ex);
             }
-            
 
         }
 
@@ -384,6 +389,21 @@ namespace AutoCellTracker
                 prevImage();
             else if (e.Key == Key.Right)
                 nextImage();
+        }
+
+        private void btnShowCropBox_Click(object sender, RoutedEventArgs e)
+        {
+            rectCrop.Opacity = 100;
+
+            double userCropWidth = double.Parse(textBoxCropX2.Text) - double.Parse(textBoxCropX1.Text);
+            double userCropHeight = double.Parse(textBoxCropY2.Text) - double.Parse(textBoxCropY1.Text);
+
+            rectCrop.Width = (userCropWidth / imageList[currentImage].Width * imageDisplay.ActualWidth);
+            rectCrop.Height = (userCropHeight / imageList[currentImage].Height * imageDisplay.ActualHeight);
+
+            Console.WriteLine("Width: " + rectCrop.Width);
+            Console.WriteLine("Height " + rectCrop.Height);
+
         }
     }
 }
