@@ -208,7 +208,41 @@ namespace AutoCellTracker
             double[,] cellArray = (double[,])res[0]; // Get the 2d array of cell num/pic num/x location/y location
 
             // Read the values from the 2D array and plot them on top of the image
+            int circleRadius = 2; //radius of the circles in the plot
+            int circleThickness = 2;
+            int lineThickness = 1;
+            Bgr color = new Bgr(System.Drawing.Color.Red);
+            
+            int imageNum = 1;
 
+            foreach ( var cellImage in imageList)
+            {
+                for ( int i = 0; i < cellArray.GetLength(0); i++ )
+                {
+                    //Console.WriteLine("cell Array Length(0): " + cellArray.GetLength(0) + " length(1): " + cellArray.GetLength(1));
+                    if (cellArray[i,1] <= imageNum) //Draw the tracked points only up to the picture number in the series
+                    {
+                        //Draw a circle at the indicated spot
+                        float centerX = (float)cellArray[i, 2];
+                        float centerY = (float)cellArray[i, 3];
+                        System.Drawing.PointF center = new System.Drawing.PointF(centerX, centerY);
+                        CircleF circle = new CircleF(center, circleRadius);
+
+                        cellImage.Draw(circle, color, circleThickness);
+
+                        if (i >= 1 && cellArray[i, 0] == cellArray[i - 1, 0]) //draw a connecting line between two points of the same tracked cell
+                        {
+                            System.Drawing.PointF prevCenter = new System.Drawing.PointF((float)cellArray[i - 1, 2], (float)cellArray[i - 1, 3]);
+                            LineSegment2DF line = new LineSegment2DF(prevCenter, center);
+                            cellImage.Draw(line, color, lineThickness);
+                        }
+                    }
+                    
+                }
+                imageNum++;
+            }
+
+            updateImage();
 
 
             //----TRY TO RUN IT AS A COMPILED DLL FOR SPEEED: Delayed for now just running MLapp in beginning of program---
