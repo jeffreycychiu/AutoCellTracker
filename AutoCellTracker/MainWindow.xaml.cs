@@ -37,14 +37,7 @@ namespace AutoCellTracker
         List<String> imageFilePath = new List<string>();
         //List<Emgu.CV.IImage> imageList = new List<Emgu.CV.IImage>();
         public List<Emgu.CV.Image<Bgr,Byte>> imageList = new List<Emgu.CV.Image<Bgr, Byte>>();
-
-        //Variables for the tracking settings (for some reason you can't pass integer variables?)
-        /*
-        public double roundLimit = 0.35;
-        public double cellAreaMinimum = 500;
-        public double cellFudgeUpperBound = 5;
-        public double cellFudgeLowerBound = 0.5;
-        */
+        public List<Emgu.CV.Image<Bgr, Byte>> imageListCopy = new List<Emgu.CV.Image<Bgr, Byte>>();
 
         //create parameters class with all the values for tracking/cropping etc
         Parameters parameters = new Parameters();
@@ -110,6 +103,8 @@ namespace AutoCellTracker
 
             if (numImages > 0)
             {
+                //create copy of the image list so that it can be re-loaded if need be
+                imageListCopy = imageList;
                 updateImage();
                 btnNext.IsEnabled = true;
                 btnPrev.IsEnabled = true;
@@ -178,16 +173,11 @@ namespace AutoCellTracker
 
                 private void btnTrack_Click(object sender, RoutedEventArgs e)
         {
-            // Create the MATLAB instance 
-
-            //MLApp.MLApp matlab = new MLApp.MLApp();
-
-            // Change to the directory where the function is located
+            //Change MATLAB to the directory where the function is located - make sure user installs it in the correct location
 
             matlab.Execute(@"cd " + startupPath);
 
             string imageFolderPath = folderTextBlock.Text;
-            //string imageFolderPath = @"C:\Users\MDL\Google Drive\Grad School Research\Matlab Prototype\Sample Images\Auto cell tracking pics\1";
 
             double roundLimit = parameters.roundLimit;
             double cellAreaMinimum = parameters.cellAreaMinimum;
@@ -197,6 +187,9 @@ namespace AutoCellTracker
             int cropWindowY1 = parameters.cropWindowY1;
             int cropWindowX2 = parameters.cropWindowX2;
             int cropWindowY2 = parameters.cropWindowY2;
+
+            //Reload images from the original list after folder selection
+            imageList = imageListCopy;
 
             //Crop the images in the image list first
             for (int i = 0; i < numImages; i++)
@@ -208,10 +201,10 @@ namespace AutoCellTracker
             }
             
             rectCrop.Opacity = 0;
-
           
             object result = null;
 
+            //Run the MATLAB function
             matlab.Feval("CellDetect_CSharpFunction", 1, out result, imageFolderPath, roundLimit, cellAreaMinimum, cellFudgeUpperBound, cellFudgeLowerBound, cropWindowX1, cropWindowY1, cropWindowX2, cropWindowY2);
 
             object[] res = result as object[];
@@ -225,12 +218,10 @@ namespace AutoCellTracker
             Bgr color = new Bgr(System.Drawing.Color.Red);
             
             int imageNum = 1;
-
             foreach ( var cellImage in imageList)
             {
                 for ( int i = 0; i < cellArray.GetLength(0); i++ )
                 {
-                    //Console.WriteLine("cell Array Length(0): " + cellArray.GetLength(0) + " length(1): " + cellArray.GetLength(1));
                     if (cellArray[i,1] <= imageNum) //Draw the tracked points only up to the picture number in the series
                     {
                         //Draw a circle at the indicated spot
@@ -280,8 +271,6 @@ namespace AutoCellTracker
 
         private void btnTrackSettings_Click(object sender, RoutedEventArgs e)
         {
-
-            //open track settings flyout
             flyoutTrackSettings.IsOpen = !flyoutTrackSettings.IsOpen;
         }
 
