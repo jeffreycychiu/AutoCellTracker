@@ -104,7 +104,13 @@ namespace AutoCellTracker
             if (numImages > 0)
             {
                 //create copy of the image list so that it can be re-loaded if need be
-                imageListCopy = imageList;
+                imageListCopy.Clear();
+                imageListCopy.TrimExcess();
+                foreach(var image in imageList)
+                {
+                    imageListCopy.Add(image);
+                }
+
                 updateImage();
                 btnNext.IsEnabled = true;
                 btnPrev.IsEnabled = true;
@@ -183,13 +189,21 @@ namespace AutoCellTracker
             double cellAreaMinimum = parameters.cellAreaMinimum;
             double cellFudgeUpperBound = parameters.cellFudgeUpperBound;
             double cellFudgeLowerBound = parameters.cellFudgeLowerBound;
+            int maxDistanceMoved = parameters.maxDistanceMoved;
+            int maxTrackStrikes = parameters.maxTrackStrikes;
+            int minNumberTracks = parameters.minNumberTracks;
             int cropWindowX1 = parameters.cropWindowX1;
             int cropWindowY1 = parameters.cropWindowY1;
             int cropWindowX2 = parameters.cropWindowX2;
             int cropWindowY2 = parameters.cropWindowY2;
 
-            //Reload images from the original list after folder selection
-            imageList = imageListCopy;
+            //Reload images from the original copied list after folder selection
+            imageList.Clear();
+            imageList.TrimExcess();
+            foreach (var image in imageListCopy)
+            {
+                imageList.Add(image);
+            }
 
             //Crop the images in the image list first
             for (int i = 0; i < numImages; i++)
@@ -205,7 +219,7 @@ namespace AutoCellTracker
             object result = null;
 
             //Run the MATLAB function
-            matlab.Feval("CellDetect_CSharpFunction", 1, out result, imageFolderPath, roundLimit, cellAreaMinimum, cellFudgeUpperBound, cellFudgeLowerBound, cropWindowX1, cropWindowY1, cropWindowX2, cropWindowY2);
+            matlab.Feval("CellDetect_CSharpFunction", 1, out result, imageFolderPath, roundLimit, cellAreaMinimum, cellFudgeUpperBound, cellFudgeLowerBound, cropWindowX1, cropWindowY1, cropWindowX2, cropWindowY2, maxDistanceMoved, maxTrackStrikes, minNumberTracks);
 
             object[] res = result as object[];
 
@@ -214,8 +228,12 @@ namespace AutoCellTracker
             // Read the values from the 2D array and plot them on top of the image
             int circleRadius = 2; //radius of the circles in the plot
             int circleThickness = 2;
-            int lineThickness = 1;
-            Bgr color = new Bgr(System.Drawing.Color.Red);
+            int lineThickness = 2;
+            Bgr cellColour = new Bgr(System.Drawing.Color.Black);
+
+            //generate random line colours for each different tracked cell
+            Random random = new Random();
+            Bgr lineColour = new Bgr(random.Next(256), random.Next(256), random.Next(256));
             
             int imageNum = 1;
             foreach ( var cellImage in imageList)
@@ -230,13 +248,17 @@ namespace AutoCellTracker
                         System.Drawing.PointF center = new System.Drawing.PointF(centerX, centerY);
                         CircleF circle = new CircleF(center, circleRadius);
 
-                        cellImage.Draw(circle, color, circleThickness);
+                        cellImage.Draw(circle, cellColour, circleThickness);
 
                         if (i >= 1 && cellArray[i, 0] == cellArray[i - 1, 0]) //draw a connecting line between two points of the same tracked cell
                         {
                             System.Drawing.PointF prevCenter = new System.Drawing.PointF((float)cellArray[i - 1, 2], (float)cellArray[i - 1, 3]);
                             LineSegment2DF line = new LineSegment2DF(prevCenter, center);
-                            cellImage.Draw(line, color, lineThickness);
+                            cellImage.Draw(line, lineColour, lineThickness);
+                        }
+                        else
+                        {
+                            lineColour = new Bgr(random.Next(256), random.Next(256), random.Next(256));
                         }
                     }
                     
@@ -245,7 +267,7 @@ namespace AutoCellTracker
             }
 
             updateImage();
-
+            btnRemoveTrack.IsEnabled = true;
 
             //----TRY TO RUN IT AS A COMPILED DLL FOR SPEEED: Delayed for now just running MLapp in beginning of program---
 
@@ -282,6 +304,9 @@ namespace AutoCellTracker
                 parameters.cellAreaMinimum = double.Parse(textBoxCellAreaMinimum.Text);
                 parameters.cellFudgeLowerBound = double.Parse(textBoxCellFudgeLower.Text);
                 parameters.cellFudgeUpperBound = double.Parse(textBoxCellFudgeUpper.Text);
+                parameters.maxDistanceMoved = int.Parse(textBoxMaxDistancePerFrame.Text);
+                parameters.maxTrackStrikes = int.Parse(textBoxMaxLostTracks.Text);
+                parameters.minNumberTracks = int.Parse(textBoxMinNumTracks.Text);
                 parameters.cropWindowX1 = int.Parse(textBoxCropX1.Text);
                 parameters.cropWindowY1 = int.Parse(textBoxCropY1.Text);
                 parameters.cropWindowX2 = int.Parse(textBoxCropX2.Text);
@@ -302,6 +327,9 @@ namespace AutoCellTracker
             public double cellAreaMinimum { get; set; }
             public double cellFudgeUpperBound { get; set; }
             public double cellFudgeLowerBound { get; set; }
+            public int maxDistanceMoved { get; set; }
+            public int maxTrackStrikes { get; set; }
+            public int minNumberTracks { get; set; }
             public int cropWindowX1 { get; set; }
             public int cropWindowY1 { get; set; }
             public int cropWindowX2 { get; set; }
@@ -315,6 +343,9 @@ namespace AutoCellTracker
                 cellAreaMinimum = 500;
                 cellFudgeUpperBound = 5;
                 cellFudgeLowerBound = 0.5;
+                maxDistanceMoved = 50;
+                maxTrackStrikes = 2;
+                minNumberTracks = 4;
 
                 //default cropping window for the software on the microscope "Donatello"
                 cropWindowX1 = 0;
@@ -393,6 +424,19 @@ namespace AutoCellTracker
             Console.WriteLine("Width: " + rectCrop.Width);
             Console.WriteLine("Height " + rectCrop.Height);
 
+        }
+
+        //Remove tracks from displayed image
+        private void btnRemoveTrack_Click(object sender, RoutedEventArgs e)
+        {
+            //re-load tracks from imageListCopy
+            imageList.Clear();
+            imageList.TrimExcess();
+            foreach (var image in imageListCopy)
+            {
+                imageList.Add(image);
+            }
+            updateImage();
         }
     }
 }
