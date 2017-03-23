@@ -1,12 +1,10 @@
 %Prototype for cell detection algorithms for Auto Cell Tracker
 %Based off: http://www.mathworks.com/help/images/examples/detecting-a-cell-using-image-segmentation.html
 
-function [cSharpA, cSharpB] = CellDetect_CSharpFunction(imageFolderPath, ROUND_LIMIT, CELL_AREA_MINIMUM, CELL_FUDGE_UPPER_BOUND, CELL_FUDGE_LOWER_BOUND, IMAGE_CROP_X1, IMAGE_CROP_Y1, IMAGE_CROP_X2, IMAGE_CROP_Y2)
+function [exportOutput] = CellDetect_CSharpFunction(imageFolderPath, ROUND_LIMIT, CELL_AREA_MINIMUM, CELL_FUDGE_UPPER_BOUND, CELL_FUDGE_LOWER_BOUND, IMAGE_CROP_X1, IMAGE_CROP_Y1, IMAGE_CROP_X2, IMAGE_CROP_Y2, MAX_DISTANCE_MOVED, MAX_TRACK_STRIKES, MIN_NUMBER_TRACKS)
 %function [cSharpA, cSharpB] = CellDetect_CSharpFunction(imageFolderPath, ROUND_LIMIT, CELL_AREA_MINIMUM, CELL_FUDGE_UPPER_BOUND, CELL_FUDGE_LOWER_BOUND)
 
-
-cSharpA = 1;
-cSharpB = 2;
+close all
 
 %DEFINED THRESHOLDS AND VALUES - These should be taken from the C# UI
 %ROUND_LIMIT = 0.35;       %Threshold for roundness measurement. 1= perfectly round.
@@ -18,6 +16,10 @@ cSharpB = 2;
 %IMAGE_CROP_Y1 = 0; %Top left corner of cropping window
 %IMAGE_CROP_X2 = 1391; %Bot right corner of cropping window
 %IMAGE_CROP_Y2 = 1039; %Bot right c orner of cropping window
+
+%MAX_DISTANCE_MOVED = 50; %used in the tracking section - maximum distance moved per frame
+%MAX_TRACK_STRIKES = 2;
+%MIN_NUMBER_TRACKS = 4;
 
 %Get image folder name from C# program:
 
@@ -166,9 +168,12 @@ for imageName = imageList'
     %figure, imshow(BWroundKept), title('final after round kept');
 
     BWroundKeptOutline = bwperim(BWroundKept);
-    roundKeptSegout = image;
-    roundKeptSegout(BWroundKeptOutline) = 255;
+%     roundKeptSegout = image;
+%     roundKeptSegout(BWroundKeptOutline) = 255;
     %figure, imshow(roundKeptSegout), title('outlined after round cells kept');
+    
+    finalSegmentedImage = croppedImages{imageIndex};
+    finalSegmentedImage(BWroundKeptOutline) = 255;
     
     %Get the centroids of the final image
     finalMeasurements = regionprops(BWroundKept, 'Centroid');
@@ -176,7 +181,7 @@ for imageName = imageList'
     centroidListX = centroidList(1:2:end-1);
     centroidListY = centroidList(2:2:end);
     
-    finalImageCellArray{imageIndex} = roundKeptSegout;
+    finalImageCellArray{imageIndex} = finalSegmentedImage;
     finalCentroidCellArrayX{imageIndex} = centroidListX';
     finalCentroidCellArrayY{imageIndex} = centroidListY';
     imageIndex = imageIndex + 1;
@@ -185,13 +190,14 @@ end
 % pause
 % close all
 %  
-% set(0,'DefaultFigureWindowStyle','docked');
-% 
+set(0,'DefaultFigureWindowStyle','docked');
+
 % for i=1:length(imageList)
 %     figure, imshow(finalImageCellArray{i});
 %     hold on
 %     plot(finalCentroidCellArrayX{i},finalCentroidCellArrayY{i},'.');
 % end
+
 %-----END OF CELL DETECTION. NEXT SECTION IS TRACKING-----%
 
 
@@ -303,7 +309,7 @@ for t = startFrame:length(imageList)
     %make asgn = 0 for that tracking element
     
     %check 1: is the detection far from the observation? if so, reject it.
-    MAX_DISTANCE_MOVED = 50;
+    
     rej = [];
     for F = 1:nF
         if asgn(F) > 0
@@ -314,7 +320,6 @@ for t = startFrame:length(imageList)
     end
     asgn = asgn.*rej;
     
-        
     %apply the assingment to the update
     k = 1;
     for F = 1:length(asgn)
@@ -351,21 +356,23 @@ for t = startFrame:length(imageList)
         strk_trks(no_trk_list) = strk_trks(no_trk_list) + 1;
     end
     
-    MAX_TRACK_STRIKES = 2;
-    %if a track has a strike greater than 6, delete the tracking. i.e.
+    %if a track has a strike greater than MAX_TRACK_STRIKES, delete the tracking. i.e.
     %make it nan first vid = 3
     bad_trks = find(strk_trks > MAX_TRACK_STRIKES);
     Q_estimate(:,bad_trks) = NaN;
     
     %%{
     %clf
-%     img = croppedImages{t};
+    
+%     set(0,'DefaultFigureWindowStyle','docked');
+%     
+%     img = finalImageCellArray{t};
 %     figure, imshow(img);
 %     hold on;
-%     plot(finalCentroidCellArrayX{t}(:),finalCentroidCellArrayY{t}(:),'or'); % the actual tracking
+%     %plot(finalCentroidCellArrayX{t}(:),finalCentroidCellArrayY{t}(:),'or'); % the actual tracking
 %     T = size(Q_loc_estimateX,2);
 %     Ms = [3 5]; %marker sizes
-%     c_list = ['r' 'b' 'g' 'c' 'm' 'y']
+%     c_list = ['r' 'b' 'g' 'c' 'm' 'y'];
 %     for Dc = 1:nF
 %         if ~isnan(Q_loc_estimateX(t,Dc))
 %             Sz = mod(Dc,2)+1; %pick marker size
@@ -385,15 +392,15 @@ for t = startFrame:length(imageList)
     %pause(1)
     %}
     
-    t
+%     t
     
 end
-% 
+
 %% Output the tracked cells in terms of...csv maybe? Columns: Cell ID#|Frame|X Pos|Y Pos
 
 trackedCellsX = cell(size(imageList));
 trackedCellsY = cell(size(imageList));
-numEntry = 1;
+numEntry = 0;
 exportOutput = [];
 
 for i=1:nF
@@ -402,24 +409,36 @@ for i=1:nF
     trackedCellsY{i} = nan(numFramesTracked,1);
     
     for j=1:nF
-        if isnan(Q_loc_estimateX(j,i))
-            break
-        end
-        numEntry = numEntry + 1;
-        
-        trackedCellsX{i}(j) = Q_loc_estimateX(j,i);
-        trackedCellsY{i}(j) = Q_loc_estimateY(j,i);
+        if (~isnan(Q_loc_estimateX(j,i))) && (numFramesTracked >= MIN_NUMBER_TRACKS)
+            
+            numEntry = numEntry + 1;
 
-        exportOutput(numEntry,1) = i;
-        exportOutput(numEntry,2) = j;
-        exportOutput(numEntry,3) = Q_loc_estimateX(j,i);
-        exportOutput(numEntry,4) = Q_loc_estimateY(j,i);
-        
+            trackedCellsX{i}(j) = Q_loc_estimateX(j,i);
+            trackedCellsY{i}(j) = Q_loc_estimateY(j,i);
+
+            exportOutput(numEntry,1) = i;
+            exportOutput(numEntry,2) = j;
+            exportOutput(numEntry,3) = round(Q_loc_estimateX(j,i));
+            exportOutput(numEntry,4) = round(Q_loc_estimateY(j,i));
+
+        end
+
         
     end
 
 end
 
-csvwrite(fullfile(imageFolderPath,filename),exportOutput);
+%% Output data to CSV file
+
+% csvFileName = fullfile(imageFolderPath,filename);
+% csvHeader = {'Cell Number' 'Picture Number' 'X Location Estimate' 'Y Location Estimate'};
+% fileID = fopen(csvFileName, 'w');
+% fprintf(fileID,'%s, ', csvHeader{1,1:end-1});
+% fprintf(fileID,'%s\n', csvHeader{1,end});
+% fclose(fileID);
+% dlmwrite(csvFileName,exportOutput, '-append');
+
+disp('Cell Detect Script Finished Running');
 
 end
+
