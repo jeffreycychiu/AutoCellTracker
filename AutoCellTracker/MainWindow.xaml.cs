@@ -38,6 +38,7 @@ namespace AutoCellTracker
         //List<Emgu.CV.IImage> imageList = new List<Emgu.CV.IImage>();
         public List<Emgu.CV.Image<Bgr,Byte>> imageList = new List<Emgu.CV.Image<Bgr, Byte>>();
         public List<Emgu.CV.Image<Bgr, Byte>> imageListCopy = new List<Emgu.CV.Image<Bgr, Byte>>();
+        public double[,] cellArray;
 
         //create parameters class with all the values for tracking/cropping etc
         Parameters parameters = new Parameters();
@@ -177,7 +178,7 @@ namespace AutoCellTracker
 
         }
 
-                private void btnTrack_Click(object sender, RoutedEventArgs e)
+        private void btnTrack_Click(object sender, RoutedEventArgs e)
         {
             //Change MATLAB to the directory where the function is located - make sure user installs it in the correct location
 
@@ -223,7 +224,7 @@ namespace AutoCellTracker
 
             object[] res = result as object[];
 
-            double[,] cellArray = (double[,])res[0]; // Get the 2d array of cell num/pic num/x location/y location
+            cellArray = (double[,])res[0]; // Get the 2d array of cell num/pic num/x location/y location
 
             // Read the values from the 2D array and plot them on top of the image
             int circleRadius = 2; //radius of the circles in the plot
@@ -268,6 +269,7 @@ namespace AutoCellTracker
 
             updateImage();
             btnRemoveTrack.IsEnabled = true;
+            btnSaveCSV.IsEnabled = true;
 
             //----TRY TO RUN IT AS A COMPILED DLL FOR SPEEED: Delayed for now just running MLapp in beginning of program---
 
@@ -437,6 +439,35 @@ namespace AutoCellTracker
                 imageList.Add(image);
             }
             updateImage();
+        }
+
+        //Save tracked points to CSV file
+        private void btnSaveCSV_Click(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "CSV File (*.csv)|*.csv";
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                
+                var csv = new StringBuilder();
+                csv.AppendLine("Cell Number,Picture Number,X Location,Y Location");
+
+                for (int i = 0; i < cellArray.GetLength(0); i++)
+                {
+                    var cellNum = cellArray[i, 0];
+                    var picNum = cellArray[i, 1];
+                    var xLocation = cellArray[i, 2];
+                    var yLocation = cellArray[i, 3];
+
+                    var newLine = string.Format("{0},{1},{2},{3}", cellNum, picNum, xLocation, yLocation);
+                    Console.WriteLine(newLine);
+                    csv.AppendLine(newLine);
+                }
+
+                File.WriteAllText(saveFileDialog.FileName, csv.ToString());
+            }
+
+
         }
     }
 }

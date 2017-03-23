@@ -99,6 +99,7 @@
                     <Button Name="btnSave" Grid.Row="0" Grid.Column="1" Click="btnSave_Click">Save Images</Button>
                     <Button Name="btnTrackSettings" Grid.Row="1" Grid.Column="0" Click="btnTrackSettings_Click">Track Settings</Button>
                     <Button Name="btnTrack" Grid.Row="1" Grid.Column="1" IsEnabled="False" Click="btnTrack_Click">Track</Button>
+                    <Button Name="btnSaveCSV" Grid.Row="2" Grid.Column="0" IsEnabled="False" Click="btnSaveCSV_Click">Save CSV</Button>
                     <Button Name="btnRemoveTrack" Grid.Row="2" Grid.Column="1" IsEnabled="False" Click="btnRemoveTrack_Click">Remove Track</Button>
                 </Grid>
                 
