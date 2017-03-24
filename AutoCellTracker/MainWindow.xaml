@@ -133,7 +133,7 @@
                     <TextBlock x:Name="textBlockCellFudgeLower" Grid.Row="3" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Cell Fudge&#x0a;Lower Bound:"/>
                     <TextBlock x:Name="textBlockMaxDistancePerFrame" Grid.Row="4" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Max Distance&#x0a;Per Frame:"/>
                     <TextBlock x:Name="textBlockMaxLostTracks" Grid.Row="5" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Max Lost&#x0a;Tracks:"/>
-                    <TextBlock x:Name="textBlockMinNumTracks" Grid.Row="6" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Min Numbert&#x0a;of Tracks:"/>
+                    <TextBlock x:Name="textBlockMinNumTracks" Grid.Row="6" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Min Number&#x0a;of Tracks:"/>
                     <TextBlock x:Name="textBlockCropX1" Grid.Row="7" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Crop Point X1"/>
                     <TextBlock x:Name="textBlockCropY1" Grid.Row="8" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Crop Point Y1"/>
                     <TextBlock x:Name="textBlockCropX2" Grid.Row="9" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Crop Point X2"/>

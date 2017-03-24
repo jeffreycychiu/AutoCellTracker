@@ -68,7 +68,6 @@ namespace AutoCellTracker
                 folderTextBlock.Text = dialog.SelectedPath;
                 btnTrack.IsEnabled = true;
             }
-                
 
             try
             {
@@ -170,10 +169,14 @@ namespace AutoCellTracker
             //Enable the red rectangle that shows the cropping box. Get the cropping box size from the new Crop Window
             
         }
-
+        
+        //Save Images to Folder
         private void btnSave_Click(object sender, RoutedEventArgs e)
         {
-            //TEMPORARY - using this button to test the matlab function integration
+            foreach (var image in imageList)
+            {
+
+            }
 
 
         }
@@ -450,17 +453,51 @@ namespace AutoCellTracker
             {
                 
                 var csv = new StringBuilder();
-                csv.AppendLine("Cell Number,Picture Number,X Location,Y Location");
+                csv.AppendLine("Cell Number,Picture Number,X Location,Y Location,X Distance (Pixels),Y Distance (Pixels),XY Distance (Pixels),Avg Distance (Pixels)");
+
+                double avgDist = 0;
+                double sumDist = 0;
+                double totalDist = 0;
+                double numDistances = 0;
 
                 for (int i = 0; i < cellArray.GetLength(0); i++)
                 {
-                    var cellNum = cellArray[i, 0];
-                    var picNum = cellArray[i, 1];
-                    var xLocation = cellArray[i, 2];
-                    var yLocation = cellArray[i, 3];
+                    double cellNum = cellArray[i, 0];
+                    double picNum = cellArray[i, 1];
+                    double xLocation = cellArray[i, 2];
+                    double yLocation = cellArray[i, 3];
+                    var xDistText = " ";
+                    var yDistText = " ";
+                    var totalDistText = " ";
+                    var avgDistText = " ";
 
-                    var newLine = string.Format("{0},{1},{2},{3}", cellNum, picNum, xLocation, yLocation);
-                    Console.WriteLine(newLine);
+                    if (i < cellArray.GetLength(0)-1)
+                    {
+                        if ( (cellNum == cellArray[i + 1, 0]) && (i != cellArray.GetLength(0)-1) )
+                        {
+                            double xDist = xLocation - cellArray[i + 1, 2];
+                            double yDist = yLocation - cellArray[i + 1, 3];
+                            totalDist = Math.Sqrt(Math.Pow(xDist, 2) + Math.Pow(yDist, 2));
+
+                            sumDist = sumDist + totalDist;
+                            numDistances++;
+
+                            xDistText = xDist.ToString();
+                            yDistText = yDist.ToString();
+                            totalDistText = totalDist.ToString();
+                        }
+                        else
+                        {
+                            avgDist = sumDist / numDistances;
+                            avgDistText = avgDist.ToString();
+                            sumDist = 0;
+                            numDistances = 0;
+
+                        }
+                    }
+
+
+                    var newLine = string.Format("{0},{1},{2},{3},{4},{5},{6},{7}", cellNum, picNum, xLocation, yLocation, xDistText, yDistText, totalDistText, avgDistText);
                     csv.AppendLine(newLine);
                 }
 
