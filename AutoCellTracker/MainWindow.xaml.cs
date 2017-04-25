@@ -34,11 +34,14 @@ namespace AutoCellTracker
     public partial class MainWindow : MetroWindow
     {
         public int numImages = 0;
+        public int numCells = 0;
         public int currentImage = 0;
+        public int currentCell = 0;
         List<String> imageFilePath = new List<string>();
         //List<Emgu.CV.IImage> imageList = new List<Emgu.CV.IImage>();
         public List<Emgu.CV.Image<Bgr,Byte>> imageList = new List<Emgu.CV.Image<Bgr, Byte>>();
         public List<Emgu.CV.Image<Bgr, Byte>> imageListCopy = new List<Emgu.CV.Image<Bgr, Byte>>();
+        public List<Emgu.CV.Image<Bgra, Byte>> imagePointsList = new List<Emgu.CV.Image<Bgra, Byte>>();
         public double[,] cellArray;
 
         //create parameters class with all the values for tracking/cropping etc
@@ -96,10 +99,14 @@ namespace AutoCellTracker
             imageList.Clear();
             imageList.TrimExcess();
 
+            Bgra transparentBGRA = new Bgra(0, 0, 0, 0);
+
             for (int i = 0; i < numImages; i++)
             {
                 Image<Bgr, Byte> image = new Image<Bgr, Byte>((imageFilePath[i]));
+                Image<Bgra, Byte> imagePoints = new Image<Bgra, Byte>(image.Width, image.Height, transparentBGRA);
                 imageList.Add(image);
+                imagePointsList.Add(imagePoints);
             }
 
             if (numImages > 0)
@@ -125,6 +132,15 @@ namespace AutoCellTracker
             BitmapSource imageBitmapSoruce = ToBitmapSource(imageList[currentImage]);
             imageDisplay.Source = imageBitmapSoruce;
             numImagesTextBlock.Text = "Image: " + (currentImage + 1) + "/" + numImages.ToString();
+            numCellTextBlock.Text = "Cell: " + (currentCell + 1) + "/" + numCells.ToString();
+        }
+
+        public void updateImagePoints()
+        {
+            BitmapSource imagePointsBitmapSource = ToBitmapSource(imagePointsList[currentImage]);
+            imagePoints.Source = imagePointsBitmapSource;
+            numImagesTextBlock.Text = "Image: " + (currentImage + 1) + "/" + numImages.ToString();
+            numCellTextBlock.Text = "Cell: " + (currentCell + 1) + "/" + numCells.ToString();
         }
 
         public void nextImage()
@@ -133,6 +149,7 @@ namespace AutoCellTracker
             if (currentImage > (numImages - 1))
                 currentImage = 0;
             updateImage();
+            updateImagePoints();
         }
 
         public void prevImage()
@@ -141,7 +158,26 @@ namespace AutoCellTracker
             if (currentImage < 0)
                 currentImage = numImages - 1;
             updateImage();
+            updateImagePoints();
         } 
+
+        public void nextCell()
+        {
+            currentCell++;
+            if (currentCell > (numCells - 1))
+                currentCell = 0;
+            updateImage();
+            updateImagePoints();
+        }
+
+        public void prevCell()
+        {
+            currentCell--;
+            if (currentCell < 0)
+                currentCell = numCells - 1;
+            updateImage();
+            updateImagePoints();
+        }
 
         private void btnNext_Click(object sender, RoutedEventArgs e)
         {
@@ -151,6 +187,16 @@ namespace AutoCellTracker
         private void btnPrev_Click(object sender, RoutedEventArgs e)
         {
             prevImage();
+        }
+
+        private void btnPrevCell_Click(object sender, RoutedEventArgs e)
+        {
+            prevCell();
+        }
+
+        private void btnNextCell_Click(object sender, RoutedEventArgs e)
+        {
+            nextCell();
         }
 
         private void btnFlyoutSettings_Click(object sender, RoutedEventArgs e)
@@ -228,52 +274,26 @@ namespace AutoCellTracker
 
             object[] res = result as object[];
 
-            cellArray = (double[,])res[0]; // Get the 2d array of cell num/pic num/x location/y location
+            cellArray = (double[,])res[0]; // Get the 2d array of cell num | pic num | x location | y location
 
-            // Read the values from the 2D array and plot them on top of the image
-            int circleRadius = 2; //radius of the circles in the plot
-            int circleThickness = 2;
-            int lineThickness = 2;
-            Bgr cellColour = new Bgr(System.Drawing.Color.Black);
+            //Count number of cells in cellArray
 
-            //generate random line colours for each different tracked cell
-            Random random = new Random();
-            Bgr lineColour = new Bgr(random.Next(256), random.Next(256), random.Next(256));
-            
-            int imageNum = 1;
-            foreach ( var cellImage in imageList)
+            List<double> uniqueCells = new List<double>();
+            for (int i = 0; i < cellArray.GetLength(0); i++)
             {
-                for ( int i = 0; i < cellArray.GetLength(0); i++ )
-                {
-                    if (cellArray[i,1] <= imageNum) //Draw the tracked points only up to the picture number in the series
-                    {
-                        //Draw a circle at the indicated spot
-                        float centerX = (float)cellArray[i, 2];
-                        float centerY = (float)cellArray[i, 3];
-                        System.Drawing.PointF center = new System.Drawing.PointF(centerX, centerY);
-                        CircleF circle = new CircleF(center, circleRadius);
-
-                        cellImage.Draw(circle, cellColour, circleThickness);
-
-                        if (i >= 1 && cellArray[i, 0] == cellArray[i - 1, 0]) //draw a connecting line between two points of the same tracked cell
-                        {
-                            System.Drawing.PointF prevCenter = new System.Drawing.PointF((float)cellArray[i - 1, 2], (float)cellArray[i - 1, 3]);
-                            LineSegment2DF line = new LineSegment2DF(prevCenter, center);
-                            cellImage.Draw(line, lineColour, lineThickness);
-                        }
-                        else
-                        {
-                            lineColour = new Bgr(random.Next(256), random.Next(256), random.Next(256));
-                        }
-                    }
-                    
-                }
-                imageNum++;
+                if (!uniqueCells.Contains(cellArray[i, 0]))
+                    uniqueCells.Add(cellArray[i, 0]);
             }
+
+            numCells = uniqueCells.Count;
+
+            drawPoints(cellArray);
 
             updateImage();
             btnRemoveTrack.IsEnabled = true;
             btnSaveCSV.IsEnabled = true;
+            btnNextCell.IsEnabled = true;
+            btnPrevCell.IsEnabled = true;
 
             //----TRY TO RUN IT AS A COMPILED DLL FOR SPEEED: Delayed for now just running MLapp in beginning of program---
 
@@ -294,6 +314,58 @@ namespace AutoCellTracker
             //{
             //    throw;
             //}
+
+        }
+
+        //Draw the points on the image. Input: 2d array with the information of the cells (cell num | pic num | x location | y location)
+        private void drawPoints(double[,] cellArray)
+        {
+            // Read the values from the 2D array and plot them on top of the image
+            int circleRadius = 2; //radius of the circles in the plot
+            int circleThickness = 2;
+            int lineThickness = 2;
+            Bgra cellColour = new Bgra(0,0,0,255);
+            
+            //generate random line colours for each different tracked cell
+            Random random = new Random();
+            Bgra lineColour = new Bgra(random.Next(256), random.Next(256), random.Next(256), 255);
+
+            int imageNum = 1;
+            foreach (var pointsImage in imagePointsList)
+            {
+                for (int i = 0; i < cellArray.GetLength(0); i++)
+                {
+                    if (cellArray[i, 1] <= imageNum) //Draw the tracked points only up to the picture number in the series
+                    {
+                        //Draw a circle at the indicated spot
+                        float centerX = (float)cellArray[i, 2];
+                        float centerY = (float)cellArray[i, 3];
+                        System.Drawing.PointF center = new System.Drawing.PointF(centerX, centerY);
+                        CircleF circle = new CircleF(center, circleRadius);
+
+                        pointsImage.Draw(circle, cellColour, circleThickness);
+
+                        if (i >= 1 && cellArray[i, 0] == cellArray[i - 1, 0]) //draw a connecting line between two points of the same tracked cell
+                        {
+                            System.Drawing.PointF prevCenter = new System.Drawing.PointF((float)cellArray[i - 1, 2], (float)cellArray[i - 1, 3]);
+                            LineSegment2DF line = new LineSegment2DF(prevCenter, center);
+                            pointsImage.Draw(line, lineColour, lineThickness);
+                        }
+                        else
+                        {
+                            lineColour = new Bgra(random.Next(256), random.Next(256), random.Next(256), 255);
+                        }
+                    }
+
+                }
+                imageNum++;
+            }
+
+            updateImagePoints();
+        }
+
+        private void highlightCurrentCell(int cellNum)
+        {
 
         }
 

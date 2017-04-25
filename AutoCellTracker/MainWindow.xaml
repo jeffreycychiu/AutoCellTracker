@@ -24,16 +24,24 @@
         
 
         <TextBlock x:Name="folderTextBlock" HorizontalAlignment="Left" Margin="65,27,0,0" TextWrapping="Wrap" Text="Folder Path to Images" VerticalAlignment="Top"/>
-        <TextBlock x:Name="numImagesTextBlock" HorizontalAlignment="Right" Margin="0,27,10,0" TextWrapping="Wrap" Text="Image: 0/0" VerticalAlignment="Top"/>
+        <TextBlock x:Name="numImagesTextBlock" HorizontalAlignment="Right" Margin="0,27,10,0" TextWrapping="Wrap" Text="Image #: 0/0" VerticalAlignment="Top"/>
+        <TextBlock x:Name="numCellTextBlock" HorizontalAlignment="Right" Margin="0,27,114,0" TextWrapping="Wrap" Text="Cell #: 0/0" VerticalAlignment="Top"/>
 
-        
         <Border Name="borderImage" BorderThickness="1" BorderBrush="#FF000000" KeyDown="borderImage_KeyDown"  Margin="10,65,10,50" Grid.RowSpan="2">
 
             <Image x:Name="imageDisplay" HorizontalAlignment="Left" KeyDown="imageDisplay_KeyDown"  Stretch="Fill" VerticalAlignment="Top"/>
 
         </Border>
+        <Border Name="borderImagePoints" BorderThickness="1" BorderBrush="#FF000000" KeyDown="borderImage_KeyDown"  Margin="10,65,10,50" Grid.RowSpan="2">
 
-        <Button x:Name="btnPrev" HorizontalAlignment="Left" Margin="10,44,0,0" Grid.Row="1" VerticalAlignment="Bottom" Width="50" Height="50"
+            <Image x:Name="imagePoints" HorizontalAlignment="Left" KeyDown="imageDisplay_KeyDown"  Stretch="Fill" VerticalAlignment="Top"/>
+
+        </Border>
+
+        <Label x:Name="labelNextImage" Content="Image:" HorizontalAlignment="Left" FontWeight="Bold" Margin="10,430,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="labelNextCell" Content="Cell:" HorizontalAlignment="Left" FontWeight="Bold" Margin="173,430,0,0" VerticalAlignment="Top"/>
+
+        <Button x:Name="btnPrev" HorizontalAlignment="Left" Margin="63,0,0,0" VerticalAlignment="Bottom" Width="50" Height="50"
                 IsEnabled="False" Click="btnPrev_Click" Style="{DynamicResource MetroCircleButtonStyle}">
             <Rectangle Width="25"
                 Height="25"
@@ -44,7 +52,7 @@
             </Rectangle>
         </Button>
 
-        <Button x:Name="btnNext" HorizontalAlignment="Left" Margin="60,44,0,0" Grid.Row="1" VerticalAlignment="Bottom" Width="50" Height="50"
+        <Button x:Name="btnNext" HorizontalAlignment="Left" Margin="118,0,0,0" VerticalAlignment="Bottom" Width="50" Height="50"
                 IsEnabled="False" Click="btnNext_Click" Style="{DynamicResource MetroCircleButtonStyle}">
             <Rectangle Width="25"
                 Height="25"
@@ -54,7 +62,29 @@
                 </Rectangle.OpacityMask>
             </Rectangle>
         </Button>
-        
+
+        <Button x:Name="btnPrevCell" HorizontalAlignment="Left" Margin="212,0,0,0" VerticalAlignment="Bottom" Width="50" Height="50"
+                IsEnabled="False" Click="btnPrevCell_Click"  Style="{DynamicResource MetroCircleButtonStyle}">
+            <Rectangle Width="25"
+                Height="25"
+                Fill="{Binding Path=Foreground, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Button}}}" RenderTransformOrigin="0.28,0.56">
+                <Rectangle.OpacityMask>
+                    <VisualBrush Stretch="Fill" Visual="{StaticResource appbar_navigate_previous}"/>
+                </Rectangle.OpacityMask>
+            </Rectangle>
+        </Button>
+
+        <Button x:Name="btnNextCell" HorizontalAlignment="Left" Margin="267,0,0,0" VerticalAlignment="Bottom" Width="50" Height="50"
+                IsEnabled="False" Click="btnNextCell_Click"  Style="{DynamicResource MetroCircleButtonStyle}">
+            <Rectangle Width="25"
+                Height="25"
+                Fill="{Binding Path=Foreground, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Button}}}">
+                <Rectangle.OpacityMask>
+                    <VisualBrush Stretch="Fill" Visual="{StaticResource appbar_navigate_next}"/>
+                </Rectangle.OpacityMask>
+            </Rectangle>
+        </Button>
+
         <!--Rectangle for drawing the crop overlay-->
         <Rectangle Name="rectCrop" Stroke="Red" StrokeThickness="3" Opacity="0" x:FieldModifier="public" HorizontalAlignment="Left" Height="100" Width="100" Margin="10,65,0,0" VerticalAlignment="Top"/>
 
