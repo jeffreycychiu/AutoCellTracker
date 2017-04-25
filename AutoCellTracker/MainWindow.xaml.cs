@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Xml.Serialization;
 using System.Runtime.InteropServices;
 using MahApps.Metro.Controls;
 using Microsoft.Win32;
@@ -301,6 +302,28 @@ namespace AutoCellTracker
             flyoutTrackSettings.IsOpen = !flyoutTrackSettings.IsOpen;
         }
 
+        private void btnSaveSettings_Click(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "Settings XML file (*.xml)|*.xml";
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                btnApplyTrackSettings_Click(sender, e);
+                parameters.Save(saveFileDialog.FileName);
+            }
+        }
+
+        private void btnLoadSettings_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "Settings XML file (*.xml)|*.xml";
+            if (openFileDialog.ShowDialog() == true)
+            {
+                parameters = parameters.Read(openFileDialog.FileName);
+                updateSettingsTextBoxes();
+            }
+        }
+
         private void btnApplyTrackSettings_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -316,13 +339,36 @@ namespace AutoCellTracker
                 parameters.cropWindowY1 = int.Parse(textBoxCropY1.Text);
                 parameters.cropWindowX2 = int.Parse(textBoxCropX2.Text);
                 parameters.cropWindowY2 = int.Parse(textBoxCropY2.Text);
-                
             }
             catch (FormatException ex)
             {
                 MessageBox.Show("Error parsing values:\n" + ex);
             }
 
+        }
+
+        private void updateSettingsTextBoxes()
+        {
+            try
+            {
+
+                textBoxRoundLimit.Text = parameters.roundLimit.ToString();
+                textBoxCellAreaMinimum.Text = parameters.cellAreaMinimum.ToString();
+                textBoxCellFudgeLower.Text = parameters.cellFudgeLowerBound.ToString();
+                textBoxCellFudgeUpper.Text = parameters.cellFudgeUpperBound.ToString();
+                textBoxMaxDistancePerFrame.Text = parameters.maxDistanceMoved.ToString();
+                textBoxMaxLostTracks.Text = parameters.maxTrackStrikes.ToString();
+                textBoxMinNumTracks.Text = parameters.minNumberTracks.ToString();
+                textBoxCropX1.Text = parameters.cropWindowX1.ToString();
+                textBoxCropY1.Text = parameters.cropWindowY1.ToString();
+                textBoxCropX2.Text = parameters.cropWindowX2.ToString();
+                textBoxCropY2.Text = parameters.cropWindowY2.ToString();
+
+            }
+            catch (FormatException ex)
+            {
+                MessageBox.Show("Error parsing values updating textboxes in settings:\n" + ex);
+            }
         }
 
         //Parameters that are used to pass to the matlab program. Determines the settings of the image processing code
@@ -357,7 +403,24 @@ namespace AutoCellTracker
                 cropWindowY1 = 0;
                 cropWindowX2 = 1393;
                 cropWindowY2 = 1041;
+            }
 
+            public void Save(string filename)
+            {
+                using (StreamWriter sw = new StreamWriter(filename))
+                {
+                    XmlSerializer xmls = new XmlSerializer(typeof(Parameters));
+                    xmls.Serialize(sw, this);
+                }
+            }
+
+            public Parameters Read(string filename)
+            {
+                using (StreamReader sw = new StreamReader(filename))
+                {
+                    XmlSerializer xmls = new XmlSerializer(typeof(Parameters));
+                    return xmls.Deserialize(sw) as Parameters;
+                }
             }
 
         }
@@ -506,5 +569,7 @@ namespace AutoCellTracker
 
 
         }
+
+
     }
 }

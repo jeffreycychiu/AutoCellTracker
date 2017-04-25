@@ -125,6 +125,7 @@
                         <RowDefinition Height="1*" />
                         <RowDefinition Height="1*" />
                         <RowDefinition Height="2*" />
+                        <RowDefinition Height="2*" />
                     </Grid.RowDefinitions>
 
                     <TextBlock x:Name="textBlockRoundLimit" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Round Limit:"/>
@@ -151,8 +152,12 @@
                     <TextBox x:Name="textBoxCropX2" Grid.Row="9" Grid.Column="1" Width="50" HorizontalAlignment="Center" VerticalAlignment="Center" Text="1393"/>
                     <TextBox x:Name="textBoxCropY2" Grid.Row="10" Grid.Column="1" Width="50" HorizontalAlignment="Center" VerticalAlignment="Center" Text="1041"/>
 
-                    <Button x:Name="btnShowCropBox" Grid.Row="11" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" Content="Show Crop Bounding Box" Click="btnShowCropBox_Click"/>
-                    <Button x:Name="btnApplyTrackSettings" Grid.Row="12" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" Content="Apply Settings" Click="btnApplyTrackSettings_Click"/>
+                    <Button x:Name="btnSaveSettings" Grid.Row="11" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Content="Save Settings" Click="btnSaveSettings_Click"/>
+                    <Button x:Name="btnLoadSettings" Grid.Row="11" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Content="Load Settings" Click="btnLoadSettings_Click"/>
+
+                    <Button x:Name="btnShowCropBox" Grid.Row="12" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" Content="Show Crop Bounding Box" Click="btnShowCropBox_Click"/>
+                    <Button x:Name="btnApplyTrackSettings" Grid.Row="13" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" Content="Apply Settings" Click="btnApplyTrackSettings_Click"/>
+
                 </Grid>
 
             </Controls:Flyout>
