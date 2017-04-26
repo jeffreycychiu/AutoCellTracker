@@ -38,8 +38,8 @@
 
         </Border>
 
-        <Label x:Name="labelNextImage" Content="Image:" HorizontalAlignment="Left" FontWeight="Bold" Margin="10,430,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="labelNextCell" Content="Cell:" HorizontalAlignment="Left" FontWeight="Bold" Margin="173,430,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="labelNextImage" Content="Image:" HorizontalAlignment="Left" FontWeight="Bold" Margin="10,0,0,13" VerticalAlignment="Bottom"/>
+        <Label x:Name="labelNextCell" Content="Cell:" HorizontalAlignment="Left" FontWeight="Bold" Margin="173,0,0,13" VerticalAlignment="Bottom"/>
 
         <Button x:Name="btnPrev" HorizontalAlignment="Left" Margin="63,0,0,0" VerticalAlignment="Bottom" Width="50" Height="50"
                 IsEnabled="False" Click="btnPrev_Click" Style="{DynamicResource MetroCircleButtonStyle}">

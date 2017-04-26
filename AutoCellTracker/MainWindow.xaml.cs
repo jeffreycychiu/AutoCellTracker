@@ -99,14 +99,10 @@ namespace AutoCellTracker
             imageList.Clear();
             imageList.TrimExcess();
 
-            Bgra transparentBGRA = new Bgra(0, 0, 0, 0);
-
             for (int i = 0; i < numImages; i++)
             {
                 Image<Bgr, Byte> image = new Image<Bgr, Byte>((imageFilePath[i]));
-                Image<Bgra, Byte> imagePoints = new Image<Bgra, Byte>(image.Width, image.Height, transparentBGRA);
                 imageList.Add(image);
-                imagePointsList.Add(imagePoints);
             }
 
             if (numImages > 0)
@@ -137,10 +133,25 @@ namespace AutoCellTracker
 
         public void updateImagePoints()
         {
+            refreshImagePoints();
+            drawPoints(cellArray);
+            highlightCurrentCell(currentCell);
             BitmapSource imagePointsBitmapSource = ToBitmapSource(imagePointsList[currentImage]);
             imagePoints.Source = imagePointsBitmapSource;
             numImagesTextBlock.Text = "Image: " + (currentImage + 1) + "/" + numImages.ToString();
             numCellTextBlock.Text = "Cell: " + (currentCell + 1) + "/" + numCells.ToString();
+        }
+
+        public void refreshImagePoints()
+        {
+            imagePointsList.Clear();
+            Bgra transparentBGRA = new Bgra(0, 0, 0, 0);
+
+            for (int i = 0; i < numImages; i++)
+            {
+                Image<Bgra, Byte> imagePoints = new Image<Bgra, Byte>(imageList[currentImage].Width, imageList[currentImage].Height, transparentBGRA);
+                imagePointsList.Add(imagePoints);
+            }
         }
 
         public void nextImage()
@@ -290,6 +301,7 @@ namespace AutoCellTracker
             drawPoints(cellArray);
 
             updateImage();
+            updateImagePoints();
             btnRemoveTrack.IsEnabled = true;
             btnSaveCSV.IsEnabled = true;
             btnNextCell.IsEnabled = true;
@@ -320,6 +332,7 @@ namespace AutoCellTracker
         //Draw the points on the image. Input: 2d array with the information of the cells (cell num | pic num | x location | y location)
         private void drawPoints(double[,] cellArray)
         {
+
             // Read the values from the 2D array and plot them on top of the image
             int circleRadius = 2; //radius of the circles in the plot
             int circleThickness = 2;
@@ -360,13 +373,31 @@ namespace AutoCellTracker
                 }
                 imageNum++;
             }
-
-            updateImagePoints();
         }
 
         private void highlightCurrentCell(int cellNum)
         {
+            int circleRadius = 4; //radius of the circles in the plot
+            int circleThickness = 2;
+            Bgra highlightColour = new Bgra(0, 255, 255, 255); //yellow highlight
+            int imageNum = 1;
+            foreach (var pointsImage in imagePointsList)
+            {
+                for (int i = 0; i < cellArray.GetLength(0); i++)
+                {
+                    //Draw a highlighting circle around the current cell selected
+                    if (cellArray[i,0] == currentCell && cellArray[i,1] <= imageNum)
+                    {
+                        float centerX = (float)cellArray[i, 2];
+                        float centerY = (float)cellArray[i, 3];
+                        System.Drawing.PointF center = new System.Drawing.PointF(centerX, centerY);
+                        CircleF circle = new CircleF(center, circleRadius);
 
+                        pointsImage.Draw(circle, highlightColour, circleThickness);
+                    }
+                }
+                imageNum++;
+            }
         }
 
         private void btnTrackSettings_Click(object sender, RoutedEventArgs e)
