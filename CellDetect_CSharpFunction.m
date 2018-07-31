@@ -230,7 +230,7 @@ varianceVelX = 200;
 varianceVelY = varianceVelX;
 
 
-%Convert process noise into covariance matrix Don't really understand this
+%Convert process noise into covariance matrix
 %Ez = [posNoiseMagX 0; 0 posNoiseMagY];      %Noise of position detection on image of X and Y are uncorrelated (0 covariance)
 Ez = [variancePosX 0; 0 variancePosY];      %Noise of position detection on image of X and Y are uncorrelated (0 covariance)
 % Ex = [dt^4/4 0 dt^3/2 0; ...
@@ -258,11 +258,11 @@ H = [1 0 0 0; 0 1 0 0];
 maxNumCells = 1000;
 
 %% initize result variables
-Q_loc_meas = []; % the fly detecions  extracted by the detection algo
+Q_loc_meas = []; % detections extracted
 %% initize estimation variables for two dimensions
 Q = [finalCentroidCellArrayX{startFrame} finalCentroidCellArrayY{startFrame} zeros(length(finalCentroidCellArrayX{startFrame}),1) zeros(length(finalCentroidCellArrayY{startFrame}),1)]';
 Q_estimate = nan(4,maxNumCells);
-Q_estimate(:,1:size(Q,2)) = Q;  %estimate of initial location estimation of where the flies are(what we are updating)
+Q_estimate(:,1:size(Q,2)) = Q;  %estimate of initial location estimation of where the cells are(what we are updating)
 Q_loc_estimateX= nan(maxNumCells); %  position estimate
 Q_loc_estimateY = nan(maxNumCells); %  position estimate
 P_estimate = P;  %covariance estimator
@@ -282,8 +282,8 @@ for t = startFrame:length(imageList)
     % make the given detections matrix
     Q_loc_meas = [finalCentroidCellArrayX{t} finalCentroidCellArrayY{t}];
     
-    %% do the kalman filter
-    % Predict next state of the flies with the last state and predicted motion.
+    %% Kalman filter
+    % Predict next state of the cells with the last state and predicted motion.
     nD = size(finalCentroidCellArrayX{t},1); %set new number of detections
     for F = 1:nF
         Q_estimate(:,F) = A * Q_estimate(:,F) + B * u;
@@ -295,9 +295,8 @@ for t = startFrame:length(imageList)
     K = P*H'*inv(H*P*H'+Ez);
     
     
-    %% now we assign the detections to estimated track positions
-    %make the distance (cost) matrice between all pairs rows = tracks, coln =
-    %detections
+    %% Assign detections to estimated track position
+    %make the distance (cost) matrix between all pairs rows = tracks, coln = detections
     est_dist = pdist([Q_estimate(1:2,1:nF)'; Q_loc_meas]);
     est_dist = squareform(est_dist); %make square
     est_dist = est_dist(1:nF,nF+1:end) ; %limit to just the tracks to detection distances
@@ -396,7 +395,7 @@ for t = startFrame:length(imageList)
     
 end
 
-%% Output the tracked cells in terms of...csv maybe? Columns: Cell ID#|Frame|X Pos|Y Pos
+%% Output the tracked cells in csv file. Columns: Cell ID#|Frame|X Pos|Y Pos
 
 trackedCellsX = cell(size(imageList));
 trackedCellsY = cell(size(imageList));
