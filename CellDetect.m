@@ -1,5 +1,4 @@
 %Prototype for cell detection algorithms for Auto Cell Tracker
-%Based off: http://www.mathworks.com/help/images/examples/detecting-a-cell-using-image-segmentation.html
 
 %function [exportOutput] = CellDetect_CSharpFunction(imageFolderPath, ROUND_LIMIT, CELL_AREA_MINIMUM, CELL_FUDGE_UPPER_BOUND, CELL_FUDGE_LOWER_BOUND, IMAGE_CROP_X1, IMAGE_CROP_Y1, IMAGE_CROP_X2, IMAGE_CROP_Y2)
 %function [cSharpA, cSharpB] = CellDetect_CSharpFunction(imageFolderPath, ROUND_LIMIT, CELL_AREA_MINIMUM, CELL_FUDGE_UPPER_BOUND, CELL_FUDGE_LOWER_BOUND)
@@ -230,17 +229,10 @@ varianceVelX = 200;
 varianceVelY = varianceVelX;
 
 
-%Convert process noise into covariance matrix Don't really understand this
-%Ez = [posNoiseMagX 0; 0 posNoiseMagY];      %Noise of position detection on image of X and Y are uncorrelated (0 covariance)
+%Convert process noise into covariance matrix
 Ez = [variancePosX 0; 0 variancePosY];      %Noise of position detection on image of X and Y are uncorrelated (0 covariance)
-% Ex = [dt^4/4 0 dt^3/2 0; ...
-%     0 dt^4/4 0 dt^3/2; ...
-%     dt^3/2 0 dt^2 0; ...
-%     0 dt^3/2 0 dt^2].*accelNoiseMag^2; % Ex convert the process noise (stdv) into covariance matrix
-
-%Ex = [variancePosX 0 0 0;0 variancePosY 0 0; 0 0 varianceVelX 0; 0 0 0 varianceVelY];
 Ex = eye(4)*variancePosX;
-P = Ex;  % estimate of initial Hexbug position variance (covariance matrix)
+P = Ex;  % estimate of initial position variance (covariance matrix)
 
 %state matrix (position, speed)
 X = [posX; posY; velX; velY];
@@ -253,25 +245,21 @@ A = [1 0 dt 0; 0 1 0 dt; 0 0 1 0; 0 0 0 1];
 B = [dt^2/2; dt^2/2; dt ; dt];
 H = [1 0 0 0; 0 1 0 0];
 
-%Find the frame with the most detected cells. Used to create empty arrays later   
-%[maxNumCells, maxIndex] = max(cellfun('size', finalCentroidCellArrayX, 1));
 maxNumCells = 1000;
 
 %% initize result variables
-Q_loc_meas = []; % the fly detecions  extracted by the detection algo
+Q_loc_meas = [];
 %% initize estimation variables for two dimensions
 Q = [finalCentroidCellArrayX{startFrame} finalCentroidCellArrayY{startFrame} zeros(length(finalCentroidCellArrayX{startFrame}),1) zeros(length(finalCentroidCellArrayY{startFrame}),1)]';
 Q_estimate = nan(4,maxNumCells);
-Q_estimate(:,1:size(Q,2)) = Q;  %estimate of initial location estimation of where the flies are(what we are updating)
-Q_loc_estimateX= nan(maxNumCells); %  position estimate
-Q_loc_estimateY = nan(maxNumCells); %  position estimate
-P_estimate = P;  %covariance estimator
+Q_estimate(:,1:size(Q,2)) = Q;  %estimate of initial location estimation
+Q_loc_estimateX= nan(maxNumCells); %  x pos estimate
+Q_loc_estimateY = nan(maxNumCells); %  y pos estimate
+P_estimate = P;  %covariance estimate
 
 strk_trks = zeros(1,maxNumCells);  %counter of how many strikes a track has gotten
 nD = size(finalCentroidCellArrayX{1},1); %initize number of detections
 nF =  find(isnan(Q_estimate(1,:))==1,1)-1 ; %initize number of track estimates
-
-%% TODO: ADAPT EVERYTHING UNDER THIS LINE
 
 %for each frame
 for t = startFrame:length(imageList)
@@ -282,8 +270,8 @@ for t = startFrame:length(imageList)
     % make the given detections matrix
     Q_loc_meas = [finalCentroidCellArrayX{t} finalCentroidCellArrayY{t}];
     
-    %% do the kalman filter
-    % Predict next state of the flies with the last state and predicted motion.
+    %% Kalman filter
+    % Predict next state of cells
     nD = size(finalCentroidCellArrayX{t},1); %set new number of detections
     for F = 1:nF
         Q_estimate(:,F) = A * Q_estimate(:,F) + B * u;
@@ -295,9 +283,7 @@ for t = startFrame:length(imageList)
     K = P*H'*inv(H*P*H'+Ez);
     
     
-    %% now we assign the detections to estimated track positions
-    %make the distance (cost) matrice between all pairs rows = tracks, coln =
-    %detections
+    %% Assign detections to track position estimate
     est_dist = pdist([Q_estimate(1:2,1:nF)'; Q_loc_meas]);
     est_dist = squareform(est_dist); %make square
     est_dist = est_dist(1:nF,nF+1:end) ; %limit to just the tracks to detection distances
@@ -399,7 +385,7 @@ for t = startFrame:length(imageList)
     
 end
 
-%% Output the tracked cells in terms of...csv maybe? Columns: Cell ID#|Frame|X Pos|Y Pos
+%% Output the tracked cells in a csv file. Columns: Cell ID#|Frame|X Pos|Y Pos
 
 trackedCellsX = cell(size(imageList));
 trackedCellsY = cell(size(imageList));
